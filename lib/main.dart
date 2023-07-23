@@ -35,16 +35,20 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: const Color.fromRGBO(59, 59, 59, 1),
-        title: const Text('ElectroShop'),
+        title: Image.asset(
+          'assets/images/ELECTRO.png',
+          height: 160, // Ajustez la hauteur selon vos besoins
+        ),
         actions: <Widget>[
           IconButton(
             icon: const Icon(
               Icons.search,
-              color: Colors.white,
+              color: Color.fromRGBO(255, 181, 0, 1.0),
             ),
             onPressed: () {},
           ),
         ],
+        iconTheme: IconThemeData(color: Color.fromRGBO(255, 181, 0, 1.0)),
       ),
       body: Container(
         child: Center(
@@ -93,8 +97,7 @@ class _HomePageState extends State<HomePage> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: _currentCarouselIndex == index
-                              ? Color.fromRGBO(
-                                  255, 181, 0, 1) // Active dot color
+                              ? Color.fromRGBO(255, 181, 0, 1) // Active dot color
                               : Colors.grey, // Inactive dot color
                         ),
                       ),
@@ -138,10 +141,10 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Color.fromRGBO(
             255, 181, 0, 1), // Add this line to change the selected item color
         unselectedItemColor:
-            Colors.white, // Add this line to change the unselected item color
+        Colors.white, // Add this line to change the unselected item color
       ),
       drawer: Drawer(
-        backgroundColor: const Color.fromRGBO(221, 221, 221, 1),
+        backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
         child: ListView(
           children: <Widget>[
             Row(
