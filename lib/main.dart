@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dots_indicator/dots_indicator.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -8,9 +9,23 @@ void main() {
   ));
 }
 
+class Product {
+  final String name;
+  final String imageUrl;
+  final double price;
+
+  Product({required this.name, required this.imageUrl, required this.price});
+}
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
+
+  final List<Product> products = [
+    Product(name: 'Product 1', imageUrl: 'assets/product1.jpg', price: 25.99),
+    Product(name: 'Product 2', imageUrl: 'assets/product2.jpg', price: 19.99),
+    Product(name: 'Product 3', imageUrl: 'assets/product3.jpg', price: 14.99),
+  ];
 }
 
 class _HomePageState extends State<HomePage> {
@@ -82,27 +97,45 @@ class _HomePageState extends State<HomePage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: DotsIndicator(
+                  // Use the DotsIndicator widget here
+                  dotsCount: imageUrls.length, // Set the number of dots
+                  position: _currentCarouselIndex
+                      .toDouble(), // Set the current active dot
+                  decorator: DotsDecorator(
+                    size: const Size.square(9.0),
+                    activeSize: const Size(18.0, 9.0),
+                    activeShape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0)),
+                    activeColor: Color.fromRGBO(255, 181, 0, 1),
+                  ),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(
+                    horizontal: 15.0), // Adds space from left and right
+                padding: EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(20.0),
+                  border: Border.all(
+                    color: Colors.red,
+                    width: 2.0,
+                  ),
+                ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: imageUrls.map((url) {
-                    int index = imageUrls.indexOf(url);
-                    return GestureDetector(
-                      onTap: () {
-                        _carouselController.jumpToPage(index);
-                      },
-                      child: Container(
-                        width: 8.0,
-                        height: 8.0,
-                        margin: EdgeInsets.symmetric(horizontal: 4.0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _currentCarouselIndex == index
-                              ? Color.fromRGBO(255, 181, 0, 1) // Active dot color
-                              : Colors.grey, // Inactive dot color
-                        ),
+                  children: [
+                    Text(
+                      'BON PLANS',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  }).toList(),
+                    ),
+                    SizedBox(width: 8.0),
+                    Text(
+                      'LES MEILLEURS PROMOS',
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -141,7 +174,7 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Color.fromRGBO(
             255, 181, 0, 1), // Add this line to change the selected item color
         unselectedItemColor:
-        Colors.white, // Add this line to change the unselected item color
+            Colors.white, // Add this line to change the unselected item color
       ),
       drawer: Drawer(
         backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
