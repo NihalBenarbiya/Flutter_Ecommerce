@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 
+import 'login_page.dart';
+
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -43,6 +45,12 @@ class _HomePageState extends State<HomePage> {
   void _closeDrawer() {
     Navigator.pop(context);
   }
+
+  void _openLoginPage() {
+    Navigator.pop(context); // Close the drawer
+    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +182,7 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Color.fromRGBO(
             255, 181, 0, 1), // Add this line to change the selected item color
         unselectedItemColor:
-            Colors.white, // Add this line to change the unselected item color
+        Colors.white, // Add this line to change the unselected item color
       ),
       drawer: Drawer(
         backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
@@ -189,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            ListTile(
+            const ListTile(
               title: Text(
                 'MON COMPTE',
                 style: TextStyle(
@@ -198,14 +206,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.person_2_outlined,
+              leading: const Icon(Icons.person_2_outlined,
                   color: Color.fromRGBO(255, 181, 0, 1)),
               title: Text('Connexion'),
-              onTap: () {
-                // Action for Service 1
-              },
+              onTap: _openLoginPage, // Navigate to login page
             ),
-            ListTile(
+            const ListTile(
               title: Text(
                 'NOS SERVICES',
                 style: TextStyle(
