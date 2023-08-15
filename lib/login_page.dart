@@ -50,8 +50,8 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: 16),
             Center(
               child: Image.asset(
-                'assets/images/logo.png',
-                height: 150,
+                'assets/images/logoApp.jpg',
+                height: 100,
               ),
             ),
             SizedBox(height: 24),
@@ -203,37 +203,38 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-Future<bool> loginToPrestaShop(String email, String password, BuildContext context) async {
-  const url = 'http://localhost/presta/api/customers?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
-
-
+Future<bool> loginToPrestaShop(String email, String password, int customerId) async {
+  final url = 'http://localhost/presta/api/customers/$customerId?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
     final xmlDoc = xml.XmlDocument.parse(response.body);
+    print(response.body);
 
     final customers = xmlDoc.findAllElements('customer');
     bool loggedIn = false;
 
     for (final customer in customers) {
       final customerEmailElement = customer.findElements('email').first;
-      final customerEmail = customerEmailElement.text;
-      final customerPasswordElement = customer.findElements('password').first;
-      final customerPassword = customerPasswordElement.text;
+      final customerPasswordElements = customer.findElements('passwd');
 
-      if (customerEmail == email && customerPassword == password) {
-        loggedIn = true;
-        break; // Exit the loop once a match is found
+      if (customerPasswordElements.isNotEmpty) {
+        final customerPasswordElement = customerPasswordElements.first;
+        final customerEmail = customerEmailElement.text;
+        final customerPassword = customerPasswordElement.text;
+
+        if (customerEmail == email && customerPassword == password) {
+          loggedIn = true;
+          break; // Exit the loop once a match is found
+        }
       }
     }
 
     return loggedIn; // Return the result
   } else {
-    return false; // Failed login
+    return false; // Login failure
   }
 }
-
-
 
 class LoginForm extends StatefulWidget {
   @override
@@ -245,41 +246,98 @@ class _LoginFormState extends State<LoginForm> {
   String email = '';
   String passwd = '';
   bool _isPasswordVisible = false;
-  bool _loginError = false; // Add this variable
+  bool _loginError = false;
+  Future<List<int>> getCustomerIds() async {
+    final url = 'http://localhost/presta/api/customers?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final xmlDoc = xml.XmlDocument.parse(response.body);
+      final customers = xmlDoc.findAllElements('customer');
+
+      List<int> customerIds = [];
+
+      for (final customer in customers) {
+        final customerIdAttribute = customer.getAttribute('id');
+        if (customerIdAttribute != null) {
+          customerIds.add(int.parse(customerIdAttribute));
+        }
+      }
+
+      return customerIds;
+    } else {
+      return [];
+    }
+  }
+
+
+
+  int currentCustomerId = 1; // ID de départ
 
   void _submitForm(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      bool loggedIn = await loginToPrestaShop(email, passwd, context);
+      List<int> customerIds = await getCustomerIds();
 
+      bool loggedIn = false;
+
+      for (int customerId in customerIds) {
+        loggedIn = await loginToPrestaShop(email, passwd, customerId);
+
+        if (loggedIn) {
+          break; // Sortir de la boucle si la connexion réussit
+        }
+      }
       if (loggedIn) {
-        // Successful login
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Connexion réussie"),
+              content: Text("Vous êtes maintenant connecté."),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()), // Redirige vers la HomePage
+                    );
+                  },
+                  child: Text("Fermer"),
+                ),
+              ],
+            );
+          },
+        );
         setState(() {
           _loginError = false;
         });
-        // Redirect to home page or do something else
       } else {
-        // Failed login
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Erreur de connexion"),
+              content: Text("Email ou mot de passe incorrect."),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Fermer"),
+                ),
+              ],
+            );
+          },
+        );
         setState(() {
           _loginError = true;
         });
       }
     }
   }
-
-
-
-
-
-  /*void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Perform the login logic here
-      print('Email: $_email');
-      print('Password: $_password');
-    }
-  }*/
-
   void _navigateToRegistrationPage() {
     Navigator.push(
       context as BuildContext,

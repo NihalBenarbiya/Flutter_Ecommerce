@@ -76,8 +76,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
             SizedBox(height: 16),
             Center(
               child: Image.asset(
-                'assets/images/logo.png',
-                height: 150,
+                'assets/images/logoApp.jpg',
+                height: 80,
               ),
             ),
             SizedBox(height: 24),

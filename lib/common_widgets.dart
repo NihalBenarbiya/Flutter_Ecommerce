@@ -7,8 +7,8 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0.0,
       backgroundColor: const Color.fromRGBO(59, 59, 59, 1),
       title: Image.asset(
-        'assets/images/ELECTRO.png',
-        height: 160,
+        'assets/images/logoApp.jpg',
+        height: 25,
       ),
       actions: <Widget>[
         IconButton(

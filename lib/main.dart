@@ -51,13 +51,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> getData() async {
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response productListResponse = await http.get(
-      Uri.parse('http://localhost/prestashop/api/products?output_format=JSON'),
+      Uri.parse('http://localhost/presta/api/products?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -74,13 +74,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> getProductInfo(int productId) async {
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = '	HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response productInfoResponse = await http.get(
       Uri.parse(
-          'http://localhost/prestashop/api/products/$productId?output_format=JSON'),
+          'http://localhost/presta/api/products/$productId?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -128,8 +128,8 @@ class _HomePageState extends State<HomePage> {
         elevation: 0.0,
         backgroundColor: const Color.fromRGBO(59, 59, 59, 1),
         title: Image.asset(
-          'assets/images/ELECTRO.png',
-          height: 160, // Ajustez la hauteur selon vos besoins
+          'assets/images/logoApp.jpg',
+          height: 25, // Ajustez la hauteur selon vos besoins
         ),
         actions: <Widget>[
           IconButton(
