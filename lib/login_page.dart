@@ -1,17 +1,24 @@
 import 'dart:convert';
+import 'dart:js';
+import 'RegistrationPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'RegistrationPage.dart';
+import 'Aide.dart';
 import 'common_widgets.dart';
+import 'drawer_content.dart';
 import 'main.dart';
 import 'package:xml/xml.dart' as xml;
-
+void _openAidePage() {
+  Navigator.pop(context as BuildContext); // Close the drawer
+  Navigator.push(
+      context as BuildContext, MaterialPageRoute(builder: (context) => AideWidget()));
+}
 class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(),
-      drawer: _buildDrawer(context),
+      drawer: DrawerContent(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -30,7 +37,7 @@ class LoginPage extends StatelessWidget {
                   child: Icon(
                     Icons.arrow_back,
                     color: Colors.black, // Arrow icon color
-                    size: 28,
+                    size: 25,
                   ),
                 ),
                 SizedBox(width: 10),
@@ -68,140 +75,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Drawer _buildDrawer(BuildContext context) {
-    return Drawer(
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-      child: ListView(
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          const ListTile(
-            title: Text(
-              'MON COMPTE',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.person_2_outlined,
-                color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Connexion'),
-            onTap: () {
-              Navigator.pop(context);
-              //_openLoginPage(context);
-            },
-          ),
-          const ListTile(
-            title: Text(
-              'NOS SERVICES',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.chat, color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Besoin d\'aide ?'),
-            onTap: () {
-              // Action for Service 1
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.account_balance_wallet_outlined,
-                color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Conditions generale de vente'),
-            onTap: () {
-              // Action for Service 2
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.house_outlined,
-                color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Nos Magasins'),
-            onTap: () {
-              // Action for Service 2
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.discount_outlined,
-                color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Nos Marques'),
-            onTap: () {
-              // Action for Service 2
-            },
-          ),
-          ListTile(
-            title: Text(
-              'PLUS D\'INFO',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.share, color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Partager l\'application'),
-            onTap: () {
-              // Action for Info 1
-            },
-          ),
-          ListTile(
-            leading:
-                Icon(Icons.info_outline, color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Qui Sommes-Nous ?'),
-            onTap: () {
-              // Action for Info 2
-            },
-          ),
-          ListTile(
-            title: Text(
-              'SUIVEZ-NOUS',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    // Action for Facebook
-                  },
-                  child: Icon(Icons.facebook),
-                ),
-                SizedBox(width: 20),
-                GestureDetector(
-                  onTap: () {
-                    // Action for Instagram
-                  },
-                  child: Icon(Icons.facebook),
-                ),
-                SizedBox(width: 20),
-                GestureDetector(
-                  onTap: () {
-                    // Action for Téléphone
-                  },
-                  child: Icon(Icons.phone),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 }
 Future<bool> loginToPrestaShop(String email, String password, int customerId) async {
   final url = 'http://localhost/presta/api/customers/$customerId?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
@@ -338,12 +212,14 @@ class _LoginFormState extends State<LoginForm> {
       }
     }
   }
-  void _navigateToRegistrationPage() {
+  void _navigateToRegistrationPage(BuildContext context) {
     Navigator.push(
-      context as BuildContext,
+      context,
       MaterialPageRoute(builder: (context) => RegistrationPage()),
     );
   }
+
+
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -414,8 +290,8 @@ class _LoginFormState extends State<LoginForm> {
           ),
 
           SizedBox(height: 16),
-          TextButton(
-            onPressed: _navigateToRegistrationPage,
+          InkWell(
+            onTap: () => _navigateToRegistrationPage(context),
             child: Text(
               "Pas de compte ? Créer un !",
               style: TextStyle(
@@ -424,6 +300,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
           ),
+
           Column(
             children: [
               if (_loginError)

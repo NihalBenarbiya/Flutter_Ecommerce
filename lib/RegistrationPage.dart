@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/drawer_content.dart';
 import 'package:ecommerce_app/main.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(),
-      drawer: _buildDrawer(context),
+      drawer: DrawerContent(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -65,7 +66,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     child: Text(
                       'Inscrivez-vous!',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 25,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -77,7 +78,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             Center(
               child: Image.asset(
                 'assets/images/logoApp.jpg',
-                height: 80,
+                height: 90,
               ),
             ),
             SizedBox(height: 24),
@@ -210,141 +211,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
         onTap: (index) {
           // Handle bottom navigation tap if needed
         },
-      ),
-    );
-  }
-
-  Drawer _buildDrawer(BuildContext context) {
-    return Drawer(
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-      child: ListView(
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          const ListTile(
-            title: Text(
-              'MON COMPTE',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.person_2_outlined,
-                color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Connexion'),
-            onTap: () {
-              Navigator.pop(context);
-              //_openLoginPage(context);
-            },
-          ),
-          const ListTile(
-            title: Text(
-              'NOS SERVICES',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.chat, color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Besoin d\'aide ?'),
-            onTap: () {
-              // Action for Service 1
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.account_balance_wallet_outlined,
-                color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Conditions generale de vente'),
-            onTap: () {
-              // Action for Service 2
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.house_outlined,
-                color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Nos Magasins'),
-            onTap: () {
-              // Action for Service 2
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.discount_outlined,
-                color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Nos Marques'),
-            onTap: () {
-              // Action for Service 2
-            },
-          ),
-          ListTile(
-            title: Text(
-              'PLUS D\'INFO',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.share, color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Partager l\'application'),
-            onTap: () {
-              // Action for Info 1
-            },
-          ),
-          ListTile(
-            leading:
-            Icon(Icons.info_outline, color: Color.fromRGBO(255, 181, 0, 1)),
-            title: Text('Qui Sommes-Nous ?'),
-            onTap: () {
-              // Action for Info 2
-            },
-          ),
-          ListTile(
-            title: Text(
-              'SUIVEZ-NOUS',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    // Action for Facebook
-                  },
-                  child: Icon(Icons.facebook),
-                ),
-                SizedBox(width: 20),
-                GestureDetector(
-                  onTap: () {
-                    // Action for Instagram
-                  },
-                  child: Icon(Icons.facebook),
-                ),
-                SizedBox(width: 20),
-                GestureDetector(
-                  onTap: () {
-                    // Action for Téléphone
-                  },
-                  child: Icon(Icons.phone),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
