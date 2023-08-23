@@ -8,6 +8,9 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
+import 'ProductsByCategory.dart';
+import 'common_widgets.dart';
+import 'drawer_content.dart';
 import 'login_page.dart';
 
 void main() {
@@ -44,12 +47,11 @@ class _HomePageState extends State<HomePage> {
         context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
-void _openAidePage() {
+  void _openAidePage() {
     Navigator.pop(context);
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => AideWidget()));
   }
-
 
   List<Map<String, dynamic>> productList = [];
 
@@ -66,61 +68,69 @@ void _openAidePage() {
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
-    http.Response productListResponse = await http.get(
-      Uri.parse('http://localhost/prestashop/api/products?output_format=JSON'),
+    http.Response specificPriceIdsResponse = await http.get(
+      Uri.parse(
+          'http://localhost/prestashop/api/specific_prices?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
-    if (productListResponse.statusCode == 200) {
-      List<dynamic> productIds =
-          jsonDecode(productListResponse.body)['products'];
-      for (var productId in productIds) {
-        await getProductInfo(productId['id']);
+    if (specificPriceIdsResponse.statusCode == 200) {
+      List<dynamic> specificPriceIds =
+          jsonDecode(specificPriceIdsResponse.body)['specific_prices'];
+      for (var specificPriceId in specificPriceIds) {
+        await getProductInfo(specificPriceId['id']);
       }
     } else {
       print(
-          'Failed to fetch product list. Status code: ${productListResponse.statusCode}');
+          'Failed to fetch specific price IDs. Status code: ${specificPriceIdsResponse.statusCode}');
     }
   }
 
-  Future<void> getProductInfo(int productId) async {
+  Future<void> getProductInfo(int specificPriceId) async {
     String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
-    http.Response productInfoResponse = await http.get(
+    http.Response specificPriceResponse = await http.get(
       Uri.parse(
-          'http://localhost/prestashop/api/products/$productId?output_format=JSON'),
+          'http://localhost/prestashop/api/specific_prices/$specificPriceId?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
-    if (productInfoResponse.statusCode == 200) {
-      Map<String, dynamic> productInfo =
-          jsonDecode(productInfoResponse.body)['product'];
+    if (specificPriceResponse.statusCode == 200) {
+      Map<String, dynamic> specificPrice =
+          jsonDecode(specificPriceResponse.body)['specific_price'];
+      int productId = int.tryParse(specificPrice['id_product'] ?? '') ?? 0;
+      double reduction = double.parse(specificPrice['reduction']);
 
-      http.Response specificPriceResponse = await http.get(
+      http.Response productInfoResponse = await http.get(
         Uri.parse(
-            'http://localhost/prestashop/api/specific_prices/$productId?output_format=JSON'),
+            'http://localhost/prestashop/api/products/$productId?output_format=JSON'),
         headers: <String, String>{'authorization': basicAuth},
       );
 
-      if (specificPriceResponse.statusCode == 200) {
-        Map<String, dynamic> specificPrice =
-            jsonDecode(specificPriceResponse.body)['specific_price'];
-        double regularPrice = double.parse(productInfo['price']);
-        double reduction = double.parse(specificPrice['reduction']);
-        double newPrice = regularPrice - (regularPrice * reduction);
+      if (productInfoResponse.statusCode == 200) {
+        Map<String, dynamic> productInfo =
+            jsonDecode(productInfoResponse.body)['product'];
 
-        productInfo['reduced_price'] = newPrice;
+        setState(() {
+          double regularPrice = double.parse(productInfo['price']);
+          double newPrice = regularPrice * (1 - reduction);
+
+          productInfo['regular_price'] = regularPrice;
+          productInfo['reduced_price'] = newPrice;
+          productInfo['reduction_percentage'] = reduction * 100;
+
+          productList.add(productInfo);
+        });
+      } else {
+        print(
+            'Failed to fetch product info for ID $productId. Status code: ${productInfoResponse.statusCode}');
       }
-
-      setState(() {
-        productList.add(productInfo);
-      });
     } else {
       print(
-          'Failed to fetch product info for ID $productId. Status code: ${productInfoResponse.statusCode}');
+          'Failed to fetch specific price info for ID $specificPriceId. Status code: ${specificPriceResponse.statusCode}');
     }
   }
 
@@ -155,83 +165,7 @@ void _openAidePage() {
     }
   }
 
-  // List<Widget> buildProductCards() {
-  //   return productList.map((productInfo) {
-  //     double price = double.parse(productInfo['price']);
-  //     int productId = productInfo['id'];
-  //     int imageId = int.tryParse(productInfo['id_default_image'] ?? '') ?? 0;
-
-  //     return AspectRatio(
-  //       aspectRatio: 0.8, // Adjust the aspect ratio as needed
-  //       child: Card(
-  //         elevation: 10,
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(10.0),
-  //           side: BorderSide(color: Colors.blue, width: 2.0),
-  //         ),
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.center,
-  //           children: [
-  //             Container(
-  //               height: 100, // Adjust the image height as needed
-  //               child: FutureBuilder<Uint8List?>(
-  //                 future: getProductImage(productId, imageId),
-  //                 builder: (context, snapshot) {
-  //                   if (snapshot.connectionState == ConnectionState.waiting) {
-  //                     return CircularProgressIndicator();
-  //                   } else if (snapshot.hasError) {
-  //                     return Text('Error loading image');
-  //                   } else if (snapshot.hasData && snapshot.data != null) {
-  //                     return Image.memory(
-  //                       snapshot.data!,
-  //                       fit: BoxFit
-  //                           .cover, // Add this line to control image fitting
-  //                     );
-  //                   } else {
-  //                     return SizedBox();
-  //                   }
-  //                 },
-  //               ),
-  //             ),
-  //             Padding(
-  //               padding: EdgeInsets.symmetric(vertical: 8.0),
-  //               child: Text(
-  //                 '${productInfo['name'][0]['value']}',
-  //                 style: TextStyle(
-  //                   fontWeight: FontWeight.bold,
-  //                   color: Colors.blue,
-  //                 ),
-  //                 textAlign: TextAlign.center,
-  //                 overflow: TextOverflow.ellipsis, // Add this line
-  //                 maxLines: 2, // Add this line
-  //               ),
-  //             ),
-  //             Expanded(
-  //                 child: Container()), // Spacer to push the price to the bottom
-  //             Container(
-  //               padding: EdgeInsets.all(8.0),
-  //               width: double.infinity, // Take the full width
-  //               decoration: BoxDecoration(
-  //                 color: Colors.blue, // Blue background color
-  //                 borderRadius: BorderRadius.circular(10.0),
-  //               ),
-  //               child: Text(
-  //                 '${price.toStringAsFixed(2)} DH',
-  //                 style: TextStyle(
-  //                   color: Color.fromRGBO(255, 181, 0, 1), // White text color
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //                 textAlign: TextAlign.center,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     );
-  //   }).toList();
-  // }
-
-  List<Map<String, dynamic>> categoryList = [];
+  List<Map<String, dynamic>> mainCategoryList = [];
 
   Future<void> getCategoryData() async {
     String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
@@ -251,6 +185,11 @@ void _openAidePage() {
       for (var categoryId in categoryIds) {
         await getCategoryInfo(categoryId['id']);
       }
+
+      // After fetching all categories, filter out those with level_depth equal to 2
+      mainCategoryList = mainCategoryList
+          .where((category) => category['level_depth'] == "2")
+          .toList();
     } else {
       print(
           'Failed to fetch category list. Status code: ${categoryListResponse.statusCode}');
@@ -273,7 +212,7 @@ void _openAidePage() {
           jsonDecode(categoryInfoResponse.body)['category'];
 
       setState(() {
-        categoryList.add(categoryInfo);
+        mainCategoryList.add(categoryInfo);
       });
     } else {
       print(
@@ -281,50 +220,11 @@ void _openAidePage() {
     }
   }
 
-  List<Widget> buildCategoryChips() {
-    return categoryList.map((categoryInfo) {
-      return Chip(
-        label: Text(
-          '${categoryInfo['name'][0]['value']}',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12, // Adjust the font size as needed
-            color: Colors.blue,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-          side: BorderSide(
-            color: Colors.red,
-            width: 2.0,
-          ),
-        ),
-      );
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: const Color.fromRGBO(59, 59, 59, 1),
-        title: Image.asset(
-          'assets/images/logoApp.jpg',
-          height: 25, // Ajustez la hauteur selon vos besoins
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(
-              Icons.search,
-              color: Color.fromRGBO(255, 181, 0, 1.0),
-            ),
-            onPressed: () {},
-          ),
-        ],
-        iconTheme: IconThemeData(color: Color.fromRGBO(255, 181, 0, 1.0)),
-      ),
+      appBar: CommonAppBar(),
+      drawer: DrawerContent(context),
       body: Container(
         child: Center(
           child: Column(
@@ -401,6 +301,7 @@ void _openAidePage() {
               SizedBox(height: 20), // Add some spacing
               SizedBox(
                 height: 300,
+                width: MediaQuery.of(context).size.width,
                 child: CarouselSlider(
                   carouselController: _carouselController,
                   options: CarouselOptions(
@@ -413,12 +314,15 @@ void _openAidePage() {
                     enableInfiniteScroll: true,
                   ),
                   items: productList.map((productInfo) {
-                    double price = double.parse(productInfo['price']);
+                    print("product info : ");
+                    print(productInfo);
+                    double price = productInfo['regular_price'];
                     double reducedPrice =
                         productInfo.containsKey('reduced_price')
                             ? productInfo['reduced_price']
                             : price;
                     int productId = productInfo['id'];
+                    print(productId);
                     int imageId =
                         int.tryParse(productInfo['id_default_image'] ?? '') ??
                             0;
@@ -488,6 +392,9 @@ void _openAidePage() {
                                     Text(
                                       '${price.toStringAsFixed(2)} DH',
                                       style: TextStyle(
+                                        decoration: reducedPrice != price
+                                            ? TextDecoration.lineThrough
+                                            : TextDecoration.none,
                                         color: Color.fromRGBO(255, 181, 0, 1),
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -500,6 +407,7 @@ void _openAidePage() {
                                       style: TextStyle(
                                         color: Colors.red,
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 16.0,
                                       ),
                                     ),
                                   ],
@@ -514,7 +422,7 @@ void _openAidePage() {
                             child: Chip(
                               backgroundColor: Colors.red,
                               label: Text(
-                                '${(price - reducedPrice).toStringAsFixed(2)} DH OFF',
+                                '-${productInfo['reduction_percentage']}%',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -558,34 +466,46 @@ void _openAidePage() {
                 height: 80,
                 width: double.infinity,
                 child: CarouselSlider(
-                  items: List.generate(categoryList.length, (index) {
-                    return Container(
-                      width: 150, // Adjust the width to accommodate the text
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 6.0, // Adjust horizontal padding as needed
-                      ),
-                      child: Chip(
-                        label: Container(
-                          // Wrap the label in a container
-                          width: double
-                              .infinity, // Allow text to wrap within the chip
-                          child: Text(
-                            '${categoryList[index]['name'][0]['value']}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              color: Color.fromRGBO(59, 59, 59, 1),
+                  items: List.generate(mainCategoryList.length, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductsByCategoryPage(
+                              categoryId: mainCategoryList[index]['id'],
                             ),
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
                           ),
+                        );
+                      },
+                      child: Container(
+                        width: 150, // Adjust the width to accommodate the text
+                        padding: EdgeInsets.symmetric(
+                          horizontal:
+                              6.0, // Adjust horizontal padding as needed
                         ),
-                        backgroundColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          side: BorderSide(
-                            color: Colors.red,
-                            width: 2.0,
+                        child: Chip(
+                          label: Container(
+                            width: double
+                                .infinity, // Allow text to wrap within the chip
+                            child: Text(
+                              '${mainCategoryList[index]['name'][0]['value']}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Color.fromRGBO(59, 59, 59, 1),
+                              ),
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          backgroundColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            side: BorderSide(
+                              color: Colors.red,
+                              width: 2.0,
+                            ),
                           ),
                         ),
                       ),
@@ -606,164 +526,11 @@ void _openAidePage() {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromRGBO(59, 59, 59, 1),
-        currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
-        selectedFontSize: 20,
-        unselectedFontSize: 20,
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Acceuil',
-              backgroundColor: Color.fromRGBO(255, 181, 0, 1)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.category_outlined),
-              label: 'Categories',
-              backgroundColor: Color.fromRGBO(255, 181, 0, 1)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.discount_outlined),
-              label: 'Offres',
-              backgroundColor: Color.fromRGBO(255, 181, 0, 1)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart_outlined),
-              label: 'Panier',
-              backgroundColor: Color.fromRGBO(255, 181, 0, 1))
-        ],
+      bottomNavigationBar: CommonFooter(
+        currentIndex: 0,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          // Handle bottom navigation tap if needed
         },
-        selectedItemColor: Color.fromRGBO(
-            255, 181, 0, 1), // Add this line to change the selected item color
-        unselectedItemColor:
-            Colors.white, // Add this line to change the unselected item color
-      ),
-      drawer: Drawer(
-        backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-        child: ListView(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: _closeDrawer,
-                ),
-              ],
-            ),
-            const ListTile(
-              title: Text(
-                'MON COMPTE',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.person_2_outlined,
-                  color: Color.fromRGBO(255, 181, 0, 1)),
-              title: Text('Connexion'),
-              onTap: _openLoginPage, // Navigate to login page
-            ),
-            const ListTile(
-              title: Text(
-                'NOS SERVICES',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.chat, color: Color.fromRGBO(255, 181, 0, 1)),
-              title: Text('Besoin d\'aide ?'),
-              onTap: _openAidePage,
-            ),
-            ListTile(
-              leading: Icon(Icons.account_balance_wallet_outlined,
-                  color: Color.fromRGBO(255, 181, 0, 1)),
-              title: Text('Conditions generale de vente'),
-              onTap: () {
-                // Action for Service 2
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.house_outlined,
-                  color: Color.fromRGBO(255, 181, 0, 1)),
-              title: Text('Nos Magasins'),
-              onTap: () {
-                // Action for Service 2
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.discount_outlined,
-                  color: Color.fromRGBO(255, 181, 0, 1)),
-              title: Text('Nos Marques'),
-              onTap: () {
-                // Action for Service 2
-              },
-            ),
-            ListTile(
-              title: Text(
-                'PLUS D\'INFO',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.share, color: Color.fromRGBO(255, 181, 0, 1)),
-              title: Text('Partager l\'application'),
-              onTap: () {
-                // Action for Info 1
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.info_outline,
-                  color: Color.fromRGBO(255, 181, 0, 1)),
-              title: Text('Qui Sommes-Nous ?'),
-              onTap: () {
-                // Action for Info 2
-              },
-            ),
-            ListTile(
-              title: Text(
-                'SUIVEZ-NOUS',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      // Action for Facebook
-                    },
-                    child: Icon(Icons.facebook),
-                  ),
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () {
-                      // Action for Instagram
-                    },
-                    child: Icon(Icons.facebook),
-                  ),
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () {
-                      // Action for Téléphone
-                    },
-                    child: Icon(Icons.phone),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
