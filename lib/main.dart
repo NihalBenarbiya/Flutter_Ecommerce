@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:ecommerce_app/Aide.dart';
-import 'package:ecommerce_app/Categories.dart';
-import 'package:ecommerce_app/ConditionVente.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -26,7 +24,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  
   final List<String> imageUrls = [
     'assets/images/image1.png',
     'assets/images/image2.png',
@@ -46,11 +43,6 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
-void _openConditionPage() {
-    Navigator.pop(context);
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ConditionVente()));
-  }
 
 void _openAidePage() {
     Navigator.pop(context);
@@ -69,13 +61,13 @@ void _openAidePage() {
   }
 
   Future<void> getData() async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response productListResponse = await http.get(
-      Uri.parse('http://localhost/presta/api/products?output_format=JSON'),
+      Uri.parse('http://localhost/prestashop/api/products?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -92,14 +84,14 @@ void _openAidePage() {
   }
 
   Future<void> getProductInfo(int productId) async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response productInfoResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/products/$productId?output_format=JSON'),
+          'http://localhost/prestashop/api/products/$productId?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -109,7 +101,7 @@ void _openAidePage() {
 
       http.Response specificPriceResponse = await http.get(
         Uri.parse(
-            'http://localhost/presta/api/specific_prices/$productId?output_format=JSON'),
+            'http://localhost/prestashop/api/specific_prices/$productId?output_format=JSON'),
         headers: <String, String>{'authorization': basicAuth},
       );
 
@@ -121,7 +113,6 @@ void _openAidePage() {
         double newPrice = regularPrice - (regularPrice * reduction);
 
         productInfo['reduced_price'] = newPrice;
-
       }
 
       setState(() {
@@ -141,13 +132,13 @@ void _openAidePage() {
       return imageCache[imageId];
     }
 
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response imageResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/images/products/$productId/$imageId'),
+          'http://localhost/prestashop/api/images/products/$productId/$imageId'),
       headers: <String, String>{
         'authorization': basicAuth,
       },
@@ -164,17 +155,93 @@ void _openAidePage() {
     }
   }
 
+  // List<Widget> buildProductCards() {
+  //   return productList.map((productInfo) {
+  //     double price = double.parse(productInfo['price']);
+  //     int productId = productInfo['id'];
+  //     int imageId = int.tryParse(productInfo['id_default_image'] ?? '') ?? 0;
+
+  //     return AspectRatio(
+  //       aspectRatio: 0.8, // Adjust the aspect ratio as needed
+  //       child: Card(
+  //         elevation: 10,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(10.0),
+  //           side: BorderSide(color: Colors.blue, width: 2.0),
+  //         ),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.center,
+  //           children: [
+  //             Container(
+  //               height: 100, // Adjust the image height as needed
+  //               child: FutureBuilder<Uint8List?>(
+  //                 future: getProductImage(productId, imageId),
+  //                 builder: (context, snapshot) {
+  //                   if (snapshot.connectionState == ConnectionState.waiting) {
+  //                     return CircularProgressIndicator();
+  //                   } else if (snapshot.hasError) {
+  //                     return Text('Error loading image');
+  //                   } else if (snapshot.hasData && snapshot.data != null) {
+  //                     return Image.memory(
+  //                       snapshot.data!,
+  //                       fit: BoxFit
+  //                           .cover, // Add this line to control image fitting
+  //                     );
+  //                   } else {
+  //                     return SizedBox();
+  //                   }
+  //                 },
+  //               ),
+  //             ),
+  //             Padding(
+  //               padding: EdgeInsets.symmetric(vertical: 8.0),
+  //               child: Text(
+  //                 '${productInfo['name'][0]['value']}',
+  //                 style: TextStyle(
+  //                   fontWeight: FontWeight.bold,
+  //                   color: Colors.blue,
+  //                 ),
+  //                 textAlign: TextAlign.center,
+  //                 overflow: TextOverflow.ellipsis, // Add this line
+  //                 maxLines: 2, // Add this line
+  //               ),
+  //             ),
+  //             Expanded(
+  //                 child: Container()), // Spacer to push the price to the bottom
+  //             Container(
+  //               padding: EdgeInsets.all(8.0),
+  //               width: double.infinity, // Take the full width
+  //               decoration: BoxDecoration(
+  //                 color: Colors.blue, // Blue background color
+  //                 borderRadius: BorderRadius.circular(10.0),
+  //               ),
+  //               child: Text(
+  //                 '${price.toStringAsFixed(2)} DH',
+  //                 style: TextStyle(
+  //                   color: Color.fromRGBO(255, 181, 0, 1), // White text color
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     );
+  //   }).toList();
+  // }
+
   List<Map<String, dynamic>> categoryList = [];
 
   Future<void> getCategoryData() async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response categoryListResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/categories&output_format=JSON'),
+          'http://localhost/prestashop/api/categories&output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -191,13 +258,13 @@ void _openAidePage() {
   }
 
   Future<void> getCategoryInfo(int categoryId) async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response categoryInfoResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/categories/$categoryId&output_format=JSON'),
+          'http://localhost/prestashop/api/categories/$categoryId&output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -236,7 +303,6 @@ void _openAidePage() {
       );
     }).toList();
   }
-  int count=0;
 
   @override
   Widget build(BuildContext context) {
@@ -352,20 +418,11 @@ void _openAidePage() {
                         productInfo.containsKey('reduced_price')
                             ? productInfo['reduced_price']
                             : price;
-                    print("avant produitId");
-                    print(productInfo.toString());
-
                     int productId = productInfo['id'];
-                    print("apres produitId");
-                    count++;
-                    print("count");
-                    print(count);
-                    print(productInfo['id_default_image']);
-                    int imageId =productInfo['id_default_image'] ?? '';
-                        //int.tryParse(productInfo['id_default_image'] ?? '') ??
-                          //  0;
-                    print("imageId");
-                    print(imageId);
+                    int imageId =
+                        int.tryParse(productInfo['id_default_image'] ?? '') ??
+                            0;
+
                     return Stack(
                       alignment: Alignment.topCenter,
                       children: [
@@ -451,7 +508,6 @@ void _openAidePage() {
                             ],
                           ),
                         ),
-
                         if (reducedPrice != price)
                           Positioned(
                             top: 0,
@@ -575,30 +631,9 @@ void _openAidePage() {
               backgroundColor: Color.fromRGBO(255, 181, 0, 1))
         ],
         onTap: (index) {
-          //onTap(index); // Call the provided onTap callback
-          // You can also add custom navigation logic here based on the index
-          switch (index) {
-            case 0:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage()),
-              );
-              break;
-            case 1:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CategoriesPage()),
-              );
-              break;
-            case 2:
-            // Handle navigation to Offres
-              break;
-            case 3:
-            // Handle navigation to Panier
-              break;
-            default:
-            // Handle other cases
-          }
+          setState(() {
+            _currentIndex = index;
+          });
         },
         selectedItemColor: Color.fromRGBO(
             255, 181, 0, 1), // Add this line to change the selected item color
@@ -649,7 +684,9 @@ void _openAidePage() {
               leading: Icon(Icons.account_balance_wallet_outlined,
                   color: Color.fromRGBO(255, 181, 0, 1)),
               title: Text('Conditions generale de vente'),
-              onTap:_openConditionPage,
+              onTap: () {
+                // Action for Service 2
+              },
             ),
             ListTile(
               leading: Icon(Icons.house_outlined,
