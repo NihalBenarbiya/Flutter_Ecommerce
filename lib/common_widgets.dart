@@ -1,4 +1,7 @@
+import 'package:ecommerce_app/Categories.dart';
 import 'package:flutter/material.dart';
+
+import 'main.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
@@ -43,25 +46,53 @@ class CommonFooter extends StatelessWidget {
       unselectedFontSize: 20,
       items: const [
         BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Acceuil',
-            backgroundColor: Color.fromRGBO(255, 181, 0, 1)),
+          icon: Icon(Icons.home),
+          label: 'Acceuil',
+          backgroundColor: Color.fromRGBO(255, 181, 0, 1),
+        ),
         BottomNavigationBarItem(
-            icon: Icon(Icons.category_outlined),
-            label: 'Categories',
-            backgroundColor: Color.fromRGBO(255, 181, 0, 1)),
+          icon: Icon(Icons.category_outlined),
+          label: 'Categories',
+          backgroundColor: Color.fromRGBO(255, 181, 0, 1),
+        ),
         BottomNavigationBarItem(
-            icon: Icon(Icons.discount_outlined),
-            label: 'Offres',
-            backgroundColor: Color.fromRGBO(255, 181, 0, 1)),
+          icon: Icon(Icons.discount_outlined),
+          label: 'Offres',
+          backgroundColor: Color.fromRGBO(255, 181, 0, 1),
+        ),
         BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart_outlined),
-            label: 'Panier',
-            backgroundColor: Color.fromRGBO(255, 181, 0, 1))
+          icon: Icon(Icons.shopping_cart_outlined),
+          label: 'Panier',
+          backgroundColor: Color.fromRGBO(255, 181, 0, 1),
+        ),
       ],
-      onTap: onTap,
-      selectedItemColor:
-      Color.fromRGBO(255, 181, 0, 1), // Add this line to change the selected item color
+      onTap: (index) {
+        onTap(index); // Call the provided onTap callback
+        // You can also add custom navigation logic here based on the index
+        switch (index) {
+          case 0:
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+            break;
+          case 1:
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CategoriesPage()),
+            );
+            break;
+          case 2:
+          // Handle navigation to Offres
+            break;
+          case 3:
+          // Handle navigation to Panier
+            break;
+          default:
+          // Handle other cases
+        }
+      },
+      selectedItemColor: Color.fromRGBO(255, 181, 0, 1),
       unselectedItemColor: Colors.white, // Add this line to change the unselected item color
     );
   }

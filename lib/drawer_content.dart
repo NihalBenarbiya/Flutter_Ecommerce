@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'Aide.dart';
+import 'ConditionVente.dart';
 import 'login_page.dart';
 
 class DrawerContent extends StatelessWidget {
@@ -17,6 +18,11 @@ class DrawerContent extends StatelessWidget {
     Navigator.pop(parentContext);
     Navigator.push(
         parentContext, MaterialPageRoute(builder: (context) => LoginPage()));
+  }
+  void _openConditionPage() {
+    Navigator.pop(parentContext);
+    Navigator.push(
+        parentContext, MaterialPageRoute(builder: (context) => ConditionVente()));
   }
 
   @override
@@ -67,9 +73,7 @@ class DrawerContent extends StatelessWidget {
             leading: Icon(Icons.account_balance_wallet_outlined,
                 color: Color.fromRGBO(255, 181, 0, 1)),
             title: Text('Conditions générales de vente'),
-            onTap: () {
-              // Action for Service 2
-            },
+            onTap: _openConditionPage,
           ),
           ListTile(
             leading: Icon(Icons.house_outlined,
