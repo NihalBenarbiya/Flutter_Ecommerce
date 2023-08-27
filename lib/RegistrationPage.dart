@@ -1,8 +1,10 @@
+import 'package:ecommerce_app/common_widgets.dart';
 import 'package:ecommerce_app/drawer_content.dart';
+import 'package:ecommerce_app/login_page.dart';
 import 'package:ecommerce_app/main.dart';
 import 'package:flutter/material.dart';
-
-import 'common_widgets.dart';
+import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart' as xml;
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -13,10 +15,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
   late String email;
-  late String password;
+  String password = "";
   late String firstName;
   late String lastName;
-  late String confirmPassword;
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -24,16 +25,58 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
-  void _submitForm(BuildContext context) {
+  Future<void> _submitForm(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // Implement your form submission logic here
 
-      // For example, you might want to navigate to the next page:
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()), // Replace with your desired next page
+      final xmlBuilder = xml.XmlBuilder();
+      xmlBuilder.processing('xml', 'version="1.0"');
+      xmlBuilder.element('prestashop', nest: () {
+        xmlBuilder.element('customer', nest: () {
+          xmlBuilder.element('id_default_group', nest: '3');
+          xmlBuilder.element('id_lang', nest: '1');
+          xmlBuilder.element('email', nest: email);
+          xmlBuilder.element('passwd', nest: password);
+          xmlBuilder.element('lastname', nest: lastName);
+          xmlBuilder.element('firstname', nest: firstName);
+          xmlBuilder.element('active', nest: '1');
+        });
+      });
+
+      final xmlData = xmlBuilder.build().toXmlString();
+
+      final response = await http.post(
+        Uri.parse("http://localhost/presta/api/customers?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD"),
+        headers: {
+          'Content-Type': 'application/xml',
+        },
+        body: xmlData,
       );
+
+      if (response.statusCode == 201) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Registration Failed"),
+              content: Text("Failed to register customer. Please try again."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 
@@ -52,12 +95,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
                   },
                   child: Icon(
                     Icons.arrow_back,
-                    color: Colors.black,
-                    size: 28,
+                    color: Colors.black, // Arrow icon color
+                    size: 25,
                   ),
                 ),
                 SizedBox(width: 10),
@@ -66,7 +112,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     child: Text(
                       'Inscrivez-vous!',
                       style: TextStyle(
-                        fontSize: 25,
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -78,7 +124,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             Center(
               child: Image.asset(
                 'assets/images/logoApp.jpg',
-                height: 90,
+                height: 100,
               ),
             ),
             SizedBox(height: 24),
@@ -89,25 +135,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   TextFormField(
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
-                      labelText: 'Nom',
-                      prefixIcon: Icon(Icons.person),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your last name';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      lastName = value!;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      labelText: 'Prénom',
+                      labelText: 'First Name',
                       prefixIcon: Icon(Icons.person),
                       border: OutlineInputBorder(),
                     ),
@@ -119,6 +147,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     },
                     onSaved: (value) {
                       firstName = value!;
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      labelText: 'Last Name',
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your last name';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      lastName = value!;
                     },
                   ),
                   SizedBox(height: 16),
@@ -147,9 +193,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       prefixIcon: Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _isPasswordVisible
-                              ? Icons.visibility_off
-                              : Icons.visibility,
+                          _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
                           color: Colors.grey,
                         ),
                         onPressed: _togglePasswordVisibility,
@@ -166,41 +210,20 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       password = value!;
                     },
                   ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      prefixIcon: Icon(Icons.lock),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      if (value != password) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      confirmPassword = value!;
-                    },
-                  ),
-                  SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () => _submitForm(context),
-                    child: Text('S\'inscrire'),
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.orange,
-                      fixedSize: Size(390, 49),
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                  ),
                 ],
+              ),
+            ),
+            SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => _submitForm(context),
+              child: Text('Register'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.orange,
+                fixedSize: Size(390, 49),
+                padding: EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
               ),
             ),
           ],
@@ -214,6 +237,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
       ),
     );
   }
-
 }
 
+void main() {
+  runApp(MaterialApp(
+    home: RegistrationPage(),
+  ));
+}
