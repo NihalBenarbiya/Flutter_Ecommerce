@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/Categories.dart';
+import 'package:ecommerce_app/Offres.dart';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
@@ -34,7 +35,10 @@ class CommonFooter extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  CommonFooter({required this.currentIndex, required this.onTap});
+  CommonFooter({
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,17 +87,21 @@ class CommonFooter extends StatelessWidget {
             );
             break;
           case 2:
-          // Handle navigation to Offres
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => OffresPage()),
+            );
             break;
           case 3:
-          // Handle navigation to Panier
+            // Handle navigation to Panier
             break;
           default:
           // Handle other cases
         }
       },
       selectedItemColor: Color.fromRGBO(255, 181, 0, 1),
-      unselectedItemColor: Colors.white, // Add this line to change the unselected item color
+      unselectedItemColor:
+          Colors.white, // Add this line to change the unselected item color
     );
   }
 }

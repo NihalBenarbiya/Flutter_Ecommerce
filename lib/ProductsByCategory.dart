@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
+import 'ProductDetails.dart';
 import 'common_widgets.dart';
 import 'drawer_content.dart';
 import 'login_page.dart';
@@ -192,6 +193,32 @@ class _SubcategoryListState extends State<SubcategoryList> {
     }
   }
 
+  Future<void> navigateToProductDetails(
+      BuildContext context, Map<String, dynamic> productInfo) async {
+    double price = (productInfo['regular_price'] as double?) ?? 0.0;
+    double reducedPrice = (productInfo['reduced_price'] as double?) ?? price;
+
+    // double reducedPrice = productInfo.containsKey('reduced_price')
+    //     ? productInfo['reduced_price']
+    //     : price;
+    int productId = productInfo['id'];
+    int imageId = int.tryParse(productInfo['id_default_image'] ?? '') ?? 0;
+
+    Uint8List? productImage = await getProductImage(productId, imageId);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailsPage(
+          productName: productInfo['name'][0]['value'],
+          price: reducedPrice,
+          productImage: productImage,
+          description: productInfo['description'][0]['value'],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -265,70 +292,76 @@ class _SubcategoryListState extends State<SubcategoryList> {
                       width: 2.0,
                     ),
                   ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          Container(
-                            height: 180,
-                            child: FutureBuilder<Uint8List?>(
-                              future: getProductImage(productId, imageId),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                } else if (snapshot.hasError) {
-                                  return Text(
-                                      'Error loading image'); // Show an error message if image fetch fails
-                                } else if (snapshot.hasData &&
-                                    snapshot.data != null) {
-                                  return Image.memory(snapshot.data!);
-                                } else {
-                                  return Container(); // Display an empty container if no image
-                                }
-                              },
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navigate to product details page
+                      navigateToProductDetails(context, productList[index]);
+                    },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Column(
+                          children: [
+                            Container(
+                              height: 180,
+                              child: FutureBuilder<Uint8List?>(
+                                future: getProductImage(productId, imageId),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Text(
+                                        'Error loading image'); // Show an error message if image fetch fails
+                                  } else if (snapshot.hasData &&
+                                      snapshot.data != null) {
+                                    return Image.memory(snapshot.data!);
+                                  } else {
+                                    return Container(); // Display an empty container if no image
+                                  }
+                                },
+                              ),
                             ),
-                          ),
-                          Text(
-                            productList[index]['name'][0]['value'],
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromRGBO(255, 181, 0, 1),
-                            ),
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                          ),
-                        ],
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(59, 59, 59, 1),
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(10.0),
-                              bottomRight: Radius.circular(10.0),
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              ' ${productList[index]['price']}',
+                            Text(
+                              productList[index]['name'][0]['value'],
                               style: TextStyle(
-                                color: Color.fromRGBO(255, 255, 255, 1),
                                 fontWeight: FontWeight.bold,
+                                color: Color.fromRGBO(255, 181, 0, 1),
+                              ),
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(59, 59, 59, 1),
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10.0),
+                                bottomRight: Radius.circular(10.0),
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                ' ${productList[index]['price']}',
+                                style: TextStyle(
+                                  color: Color.fromRGBO(255, 255, 255, 1),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
