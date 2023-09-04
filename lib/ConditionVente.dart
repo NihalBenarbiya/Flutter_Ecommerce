@@ -3,10 +3,11 @@ import 'common_widgets.dart';
 import 'drawer_content.dart';
 
 class ConditionVente extends StatelessWidget {
+  final bool isLoggedIn=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(),
+      appBar: CommonAppBar(isLoggedIn: isLoggedIn),
       drawer: DrawerContent(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

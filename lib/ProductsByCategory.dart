@@ -14,13 +14,13 @@ import 'login_page.dart';
 
 class ProductsByCategoryPage extends StatelessWidget {
   final int categoryId;
-
+  final bool isLoggedIn=false;
   ProductsByCategoryPage({required this.categoryId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(),
+      appBar: CommonAppBar(isLoggedIn: isLoggedIn),
       drawer: DrawerContent(context),
       body: SubcategoryList(categoryId: categoryId),
       bottomNavigationBar: CommonFooter(
@@ -53,14 +53,14 @@ class _SubcategoryListState extends State<SubcategoryList> {
   }
 
   Future<void> getCategoryData() async {
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response categoryListResponse = await http.get(
       Uri.parse(
-          'http://localhost/prestashop/api/categories&output_format=JSON'),
+          'http://localhost/presta/api/categories&output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -94,13 +94,13 @@ class _SubcategoryListState extends State<SubcategoryList> {
   }
 
   Future<void> getCategoryInfo(int categoryId) async {
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response categoryInfoResponse = await http.get(
       Uri.parse(
-          'http://localhost/prestashop/api/categories/$categoryId&output_format=JSON'),
+          'http://localhost/presta/api/categories/$categoryId&output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -118,13 +118,13 @@ class _SubcategoryListState extends State<SubcategoryList> {
   }
 
   Future<void> getProductData(int categoryId) async {
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response productListResponse = await http.get(
-      Uri.parse('http://localhost/prestashop/api/products?output_format=JSON'),
+      Uri.parse('http://localhost/presta/api/products?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -137,7 +137,7 @@ class _SubcategoryListState extends State<SubcategoryList> {
         // Fetch detailed product information using productId
         http.Response productInfoResponse = await http.get(
           Uri.parse(
-              'http://localhost/prestashop/api/products/$productId?output_format=JSON'),
+              'http://localhost/presta/api/products/$productId?output_format=JSON'),
           headers: <String, String>{'authorization': basicAuth},
         );
 
@@ -170,13 +170,13 @@ class _SubcategoryListState extends State<SubcategoryList> {
       return imageCache[imageId];
     }
 
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response imageResponse = await http.get(
       Uri.parse(
-          'http://localhost/prestashop/api/images/products/$productId/$imageId'),
+          'http://localhost/presta/api/images/products/$productId/$imageId'),
       headers: <String, String>{
         'authorization': basicAuth,
       },
@@ -202,7 +202,8 @@ class _SubcategoryListState extends State<SubcategoryList> {
     //     ? productInfo['reduced_price']
     //     : price;
     int productId = productInfo['id'];
-    int imageId = int.tryParse(productInfo['id_default_image'] ?? '') ?? 0;
+   // int imageId = int.tryParse(productInfo['id_default_image'] ?? '') ?? 0;
+    int imageId =productInfo['id_default_image'] ?? '';
 
     Uint8List? productImage = await getProductImage(productId, imageId);
 
@@ -279,8 +280,10 @@ class _SubcategoryListState extends State<SubcategoryList> {
               itemCount: productList.length,
               itemBuilder: (context, index) {
                 int productId = productList[index]['id'];
-                int imageId = int.tryParse(
+                /*int imageId = int.tryParse(
                         productList[index]['id_default_image'] ?? '') ??
+                    0;*/
+                int imageId =productList[index]['id_default_image'] ?? '' ??
                     0;
 
                 return Card(

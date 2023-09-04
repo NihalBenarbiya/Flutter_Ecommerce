@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   http: ^0.13.3 #ajouté
   carousel_slider: ^4.2.1
+  shared_preferences: ^2.0.12
   dots_indicator: ^2.1.1
   xml: ^5.0.1
 

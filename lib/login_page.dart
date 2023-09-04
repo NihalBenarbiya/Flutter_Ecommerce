@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:js';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'RegistrationPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -14,10 +16,12 @@ void _openAidePage() {
       context as BuildContext, MaterialPageRoute(builder: (context) => AideWidget()));
 }
 class LoginPage extends StatelessWidget {
+  final bool isLoggedIn=false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(),
+      appBar: CommonAppBar(isLoggedIn: isLoggedIn),
       drawer: DrawerContent(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -109,6 +113,11 @@ Future<bool> loginToPrestaShop(String email, String password, int customerId) as
     return false; // Login failure
   }
 }
+Future<String?> getUserEmail() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('userEmail');
+}
+
 
 class LoginForm extends StatefulWidget {
   @override
@@ -144,8 +153,6 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
-
-
   int currentCustomerId = 1; // ID de départ
 
   void _submitForm(BuildContext context) async {
@@ -160,7 +167,9 @@ class _LoginFormState extends State<LoginForm> {
         loggedIn = await loginToPrestaShop(email, passwd, customerId);
 
         if (loggedIn) {
-          break; // Sortir de la boucle si la connexion réussit
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool('isLoggedIn', true);
+          prefs.setString('userEmail', email); // Stockez l'e-mail de l'utilisateur
         }
       }
       if (loggedIn) {
@@ -321,4 +330,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-

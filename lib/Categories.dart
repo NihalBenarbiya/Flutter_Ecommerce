@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'CategoryProductsPage.dart';
+import 'ProductsByCategory.dart';
 import 'common_widgets.dart';
 import 'drawer_content.dart';
 import 'package:http/http.dart' as http;
@@ -12,6 +13,7 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   List<Map<String, dynamic>> categoryList = [];
+  final bool isLoggedIn=false;
 
   @override
   void initState() {
@@ -72,7 +74,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: CommonAppBar(),
+      appBar: CommonAppBar(isLoggedIn: isLoggedIn),
       drawer: DrawerContent(context),
       body: SingleChildScrollView(
         child: Column(
@@ -96,14 +98,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   Expanded(
                     child: Center(
                       child: Text(
-                    'Nos catégories',
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
+                        'Nos catégories',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-        ),
-      ),
                 ],
               ),
             ),
@@ -123,7 +125,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CategoryProductsPage(
+                        builder: (context) => ProductsByCategoryPage(
                           categoryId: categoryList[index]['id'],
                         ),
                       ),

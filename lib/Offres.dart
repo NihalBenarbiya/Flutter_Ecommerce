@@ -9,13 +9,14 @@ import 'ProductDetails.dart';
 import 'drawer_content.dart';
 
 class OffresPage extends StatefulWidget {
+
   @override
   State<OffresPage> createState() => _OffresPageState();
 }
 
 class _OffresPageState extends State<OffresPage> {
   final List<Map<String, dynamic>> productList = [];
-
+  final bool isLoggedIn=false;
   @override
   void initState() {
     super.initState();
@@ -23,14 +24,14 @@ class _OffresPageState extends State<OffresPage> {
   }
 
   Future<void> getData() async {
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response specificPriceIdsResponse = await http.get(
       Uri.parse(
-          'http://localhost/prestashop/api/specific_prices?output_format=JSON'),
+          'http://localhost/presta/api/specific_prices?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -47,26 +48,27 @@ class _OffresPageState extends State<OffresPage> {
   }
 
   Future<void> getProductInfo(int specificPriceId) async {
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response specificPriceResponse = await http.get(
       Uri.parse(
-          'http://localhost/prestashop/api/specific_prices/$specificPriceId?output_format=JSON'),
+          'http://localhost/presta/api/specific_prices/$specificPriceId?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
     if (specificPriceResponse.statusCode == 200) {
       Map<String, dynamic> specificPrice =
           jsonDecode(specificPriceResponse.body)['specific_price'];
-      int productId = int.tryParse(specificPrice['id_product'] ?? '') ?? 0;
+      //int productId = int.tryParse(specificPrice['id_product'] ?? '') ?? 0;
+      int productId = specificPrice['id_product'] ?? '' ?? 0;
       double reduction = double.parse(specificPrice['reduction']);
 
       http.Response productInfoResponse = await http.get(
         Uri.parse(
-            'http://localhost/prestashop/api/products/$productId?output_format=JSON'),
+            'http://localhost/presta/api/products/$productId?output_format=JSON'),
         headers: <String, String>{'authorization': basicAuth},
       );
 
@@ -102,13 +104,13 @@ class _OffresPageState extends State<OffresPage> {
       return imageCache[imageId];
     }
 
-    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response imageResponse = await http.get(
       Uri.parse(
-          'http://localhost/prestashop/api/images/products/$productId/$imageId'),
+          'http://localhost/presta/api/images/products/$productId/$imageId'),
       headers: <String, String>{
         'authorization': basicAuth,
       },
@@ -128,7 +130,7 @@ class _OffresPageState extends State<OffresPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(), // Use the provided CommonAppBar widget
+      appBar: CommonAppBar(isLoggedIn: isLoggedIn),// Use the provided CommonAppBar widget
       drawer: DrawerContent(context), // Use the provided DrawerContent widget
       body: SafeArea(
         child: Padding(
@@ -146,9 +148,7 @@ class _OffresPageState extends State<OffresPage> {
                       ? productList[index]['reduced_price']
                       : price;
               int productId = productList[index]['id'];
-              int imageId =
-                  int.tryParse(productList[index]['id_default_image'] ?? '') ??
-                      0;
+              int imageId = productList[index]['id_default_image'] ?? '';
 
               return Card(
                 elevation: 10,

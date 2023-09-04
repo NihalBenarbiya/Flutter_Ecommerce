@@ -1,10 +1,14 @@
 import 'package:ecommerce_app/Categories.dart';
 import 'package:ecommerce_app/Offres.dart';
+import 'package:ecommerce_app/Recherche.dart';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final bool isLoggedIn; // Add this property
+
+  CommonAppBar({required this.isLoggedIn});
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -20,7 +24,12 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
             Icons.search,
             color: Color.fromRGBO(255, 181, 0, 1.0),
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchPage()),
+            );
+          },
         ),
       ],
       iconTheme: IconThemeData(color: Color.fromRGBO(255, 181, 0, 1.0)),
@@ -100,8 +109,7 @@ class CommonFooter extends StatelessWidget {
         }
       },
       selectedItemColor: Color.fromRGBO(255, 181, 0, 1),
-      unselectedItemColor:
-          Colors.white, // Add this line to change the unselected item color
+      unselectedItemColor: Colors.white, // Add this line to change the unselected item color
     );
   }
 }

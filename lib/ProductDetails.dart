@@ -23,11 +23,11 @@ class ProductDetailsPage extends StatefulWidget {
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _selectedTabIndex = 0;
-
+  final bool isLoggedIn=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(),
+      appBar: CommonAppBar(isLoggedIn: isLoggedIn),
       drawer: DrawerContent(context),
       body: Column(
         children: [

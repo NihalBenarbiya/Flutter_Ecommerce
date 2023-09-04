@@ -12,6 +12,7 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
+  final bool isLoggedIn=false;
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
   late String email;
@@ -79,11 +80,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(),
+      appBar: CommonAppBar(isLoggedIn: isLoggedIn),
       drawer: DrawerContent(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
