@@ -7,12 +7,14 @@ import 'drawer_content.dart';
 class ProductDetailsPage extends StatefulWidget {
   final String productName;
   final double price;
+  final double reducedPrice;
   final Uint8List? productImage;
   final String description;
 
   ProductDetailsPage({
     required this.productName,
     required this.price,
+    required this.reducedPrice,
     required this.productImage,
     required this.description,
   });
@@ -23,7 +25,15 @@ class ProductDetailsPage extends StatefulWidget {
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _selectedTabIndex = 0;
-  final bool isLoggedIn=false;
+  final bool isLoggedIn = false;
+  bool hasSpecificPrice = false;
+
+  @override
+  void initState() {
+    super.initState();
+    hasSpecificPrice = widget.reducedPrice > 0.0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +74,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             child: Row(
               children: [
                 Expanded(
-                  flex: 2, // 2/3 of the width
+                  flex: 2,
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color.fromRGBO(59, 59, 59, 1),
@@ -77,12 +87,43 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          '${widget.price.toStringAsFixed(2)} DH',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(59, 59, 59, 1),
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(10.0),
+                              bottomRight: Radius.circular(10.0),
+                            ),
+                          ),
+                          child: Center(
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text:
+                                        ' \$${widget.price.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      color: Color.fromRGBO(255, 255, 255, 1),
+                                      fontWeight: FontWeight.bold,
+                                      decoration: hasSpecificPrice
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                    ),
+                                  ),
+                                  if (hasSpecificPrice)
+                                    TextSpan(
+                                      text:
+                                          ' \$${widget.reducedPrice.toStringAsFixed(2)}',
+                                      style: TextStyle(
+                                        color: Color.fromRGBO(220, 46, 46, 1),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ],

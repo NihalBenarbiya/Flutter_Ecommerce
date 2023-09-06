@@ -28,7 +28,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  final bool isLoggedIn=false;
+  final bool isLoggedIn = false;
   final List<String> imageUrls = [
     'assets/images/image1.png',
     'assets/images/image2.png',
@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
 
     if (specificPriceIdsResponse.statusCode == 200) {
       List<dynamic> specificPriceIds =
-      jsonDecode(specificPriceIdsResponse.body)['specific_prices'];
+          jsonDecode(specificPriceIdsResponse.body)['specific_prices'];
       for (var specificPriceId in specificPriceIds) {
         await getProductInfo(specificPriceId['id']);
       }
@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
 
     if (specificPriceResponse.statusCode == 200) {
       Map<String, dynamic> specificPrice =
-      jsonDecode(specificPriceResponse.body)['specific_price'];
+          jsonDecode(specificPriceResponse.body)['specific_price'];
       int productId = int.tryParse(specificPrice['id_product'] ?? '') ?? 0;
       double reduction = double.parse(specificPrice['reduction']);
 
@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> {
 
       if (productInfoResponse.statusCode == 200) {
         Map<String, dynamic> productInfo =
-        jsonDecode(productInfoResponse.body)['product'];
+            jsonDecode(productInfoResponse.body)['product'];
 
         setState(() {
           double regularPrice = double.parse(productInfo['price']);
@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
 
     if (categoryListResponse.statusCode == 200) {
       List<dynamic> categoryIds =
-      jsonDecode(categoryListResponse.body)['categories'];
+          jsonDecode(categoryListResponse.body)['categories'];
       for (var categoryId in categoryIds) {
         await getCategoryInfo(categoryId['id']);
       }
@@ -211,7 +211,7 @@ class _HomePageState extends State<HomePage> {
 
     if (categoryInfoResponse.statusCode == 200) {
       Map<String, dynamic> categoryInfo =
-      jsonDecode(categoryInfoResponse.body)['category'];
+          jsonDecode(categoryInfoResponse.body)['category'];
 
       setState(() {
         mainCategoryList.add(categoryInfo);
@@ -238,7 +238,8 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(
         builder: (context) => ProductDetailsPage(
           productName: productInfo['name'][0]['value'],
-          price: reducedPrice,
+          price: price,
+          reducedPrice: reducedPrice,
           productImage: productImage,
           description: productInfo['description'][0]['value'],
         ),
@@ -342,9 +343,9 @@ class _HomePageState extends State<HomePage> {
                   items: productList.map((productInfo) {
                     double price = productInfo['regular_price'];
                     double reducedPrice =
-                    productInfo.containsKey('reduced_price')
-                        ? productInfo['reduced_price']
-                        : price;
+                        productInfo.containsKey('reduced_price')
+                            ? productInfo['reduced_price']
+                            : price;
                     int productId = productInfo['id'];
                     int imageId =
                         int.tryParse(productInfo['id_default_image'] ?? '') ??
@@ -469,7 +470,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Stack(
                     alignment:
-                    Alignment.centerLeft, // Aligns the Divider to the left
+                        Alignment.centerLeft, // Aligns the Divider to the left
                     children: [
                       Text(
                         'NOS CATEGORIES',
@@ -510,7 +511,7 @@ class _HomePageState extends State<HomePage> {
                         width: 150, // Adjust the width to accommodate the text
                         padding: EdgeInsets.symmetric(
                           horizontal:
-                          6.0, // Adjust horizontal padding as needed
+                              6.0, // Adjust horizontal padding as needed
                         ),
                         child: Chip(
                           label: Container(
@@ -541,7 +542,7 @@ class _HomePageState extends State<HomePage> {
                   }),
                   options: CarouselOptions(
                     viewportFraction:
-                    0.3, // Adjust to smaller value for tighter spacing
+                        0.3, // Adjust to smaller value for tighter spacing
                     autoPlay: true,
                     autoPlayInterval: Duration(seconds: 2),
                     autoPlayAnimationDuration: Duration(milliseconds: 800),

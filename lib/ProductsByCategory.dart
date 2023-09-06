@@ -14,7 +14,7 @@ import 'login_page.dart';
 
 class ProductsByCategoryPage extends StatelessWidget {
   final int categoryId;
-  final bool isLoggedIn=false;
+  final bool isLoggedIn = false;
   ProductsByCategoryPage({required this.categoryId});
 
   @override
@@ -53,14 +53,14 @@ class _SubcategoryListState extends State<SubcategoryList> {
   }
 
   Future<void> getCategoryData() async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response categoryListResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/categories&output_format=JSON'),
+          'http://localhost/prestashop/api/categories&output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -94,13 +94,13 @@ class _SubcategoryListState extends State<SubcategoryList> {
   }
 
   Future<void> getCategoryInfo(int categoryId) async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response categoryInfoResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/categories/$categoryId&output_format=JSON'),
+          'http://localhost/prestashop/api/categories/$categoryId&output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -117,14 +117,66 @@ class _SubcategoryListState extends State<SubcategoryList> {
     }
   }
 
+  Future<List<int>> getSpecificPriceProductIds() async {
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String password = '';
+    String basicAuth =
+        'Basic ' + base64.encode(utf8.encode('$username:$password'));
+
+    http.Response specificPricesResponse = await http.get(
+      Uri.parse(
+          'http://localhost/prestashop/api/specific_prices?output_format=JSON'),
+      headers: <String, String>{'authorization': basicAuth},
+    );
+
+    if (specificPricesResponse.statusCode == 200) {
+      List<dynamic> specificPriceIds =
+          jsonDecode(specificPricesResponse.body)['specific_prices'];
+      return specificPriceIds.map<int>((sp) => sp['id']).toList();
+    } else {
+      print(
+          'Failed to fetch specific price IDs. Status code: ${specificPricesResponse.statusCode}');
+      return [];
+    }
+  }
+
+  Future<Map<int, Map<String, dynamic>>?> getSpecificPriceDetails(
+      List<int> productIds) async {
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
+    String password = '';
+    String basicAuth =
+        'Basic ' + base64.encode(utf8.encode('$username:$password'));
+
+    Map<int, Map<String, dynamic>> specificPriceDetails = {};
+
+    for (int productId in productIds) {
+      http.Response specificPriceResponse = await http.get(
+        Uri.parse(
+            'http://localhost/prestashop/api/specific_prices/$productId?output_format=JSON'),
+        headers: <String, String>{'authorization': basicAuth},
+      );
+
+      if (specificPriceResponse.statusCode == 200) {
+        Map<String, dynamic> specificPriceInfo =
+            jsonDecode(specificPriceResponse.body)['specific_price'];
+        specificPriceDetails[productId] = specificPriceInfo;
+      } else {
+        print(
+            'Failed to fetch specific price details for product ID $productId. Status code: ${specificPriceResponse.statusCode}');
+      }
+    }
+
+    return specificPriceDetails;
+  }
+
   Future<void> getProductData(int categoryId) async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response productListResponse = await http.get(
-      Uri.parse('http://localhost/presta/api/products?output_format=JSON'),
+      Uri.parse('http://localhost/prestashop/api/products?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
@@ -137,7 +189,7 @@ class _SubcategoryListState extends State<SubcategoryList> {
         // Fetch detailed product information using productId
         http.Response productInfoResponse = await http.get(
           Uri.parse(
-              'http://localhost/presta/api/products/$productId?output_format=JSON'),
+              'http://localhost/prestashop/api/products/$productId?output_format=JSON'),
           headers: <String, String>{'authorization': basicAuth},
         );
 
@@ -156,6 +208,30 @@ class _SubcategoryListState extends State<SubcategoryList> {
       setState(() {
         productList = filteredProducts;
       });
+
+      // Fetch specific price product IDs and details
+      List<int> specificPriceProductIds = await getSpecificPriceProductIds();
+      Map<int, Map<String, dynamic>>? specificPriceDetails =
+          await getSpecificPriceDetails(specificPriceProductIds);
+
+      setState(() {
+        // Update productList with specific prices
+        productList.forEach((product) {
+          final productId = product['id'];
+          if (specificPriceDetails != null &&
+              specificPriceDetails.containsKey(productId)) {
+            final specificPriceInfo = specificPriceDetails[productId];
+            final regularPrice = double.tryParse(product['price']) ?? 0.0;
+            final reduction = specificPriceInfo != null &&
+                    specificPriceInfo['reduction'] != null
+                ? double.tryParse(specificPriceInfo['reduction']) ?? 0.0
+                : 0.0;
+            final specificPriceValue = regularPrice * (1 - reduction);
+            product['specific_price'] = specificPriceValue.toStringAsFixed(2);
+            product['reduction'] = reduction.toStringAsFixed(2);
+          }
+        });
+      });
     } else {
       print(
           'Failed to fetch products. Status code: ${productListResponse.statusCode}');
@@ -163,6 +239,7 @@ class _SubcategoryListState extends State<SubcategoryList> {
   }
 
   Map<int, Uint8List?> imageCache = {}; // Store fetched image data
+  Map<int, Uint8List?> productImages = {};
 
   Future<Uint8List?> getProductImage(int productId, int imageId) async {
     // Check if the image data is already cached
@@ -170,13 +247,13 @@ class _SubcategoryListState extends State<SubcategoryList> {
       return imageCache[imageId];
     }
 
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response imageResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/images/products/$productId/$imageId'),
+          'http://localhost/prestashop/api/images/products/$productId/$imageId'),
       headers: <String, String>{
         'authorization': basicAuth,
       },
@@ -184,7 +261,8 @@ class _SubcategoryListState extends State<SubcategoryList> {
 
     if (imageResponse.statusCode == 200) {
       Uint8List? imageData = imageResponse.bodyBytes;
-      imageCache[imageId] = imageData; // Cache the fetched image data
+      imageCache[imageId] = imageData;
+      productImages[imageId] = imageData; // Cache the fetched image data
       return imageData;
     } else {
       print(
@@ -193,31 +271,18 @@ class _SubcategoryListState extends State<SubcategoryList> {
     }
   }
 
-  Future<void> navigateToProductDetails(
-      BuildContext context, Map<String, dynamic> productInfo) async {
-    double price = (productInfo['regular_price'] as double?) ?? 0.0;
-    double reducedPrice = (productInfo['reduced_price'] as double?) ?? price;
+  bool productHasSpecificPrice(Map<String, dynamic> product) {
+    return product['specific_price'] != null;
+  }
 
-    // double reducedPrice = productInfo.containsKey('reduced_price')
-    //     ? productInfo['reduced_price']
-    //     : price;
-    int productId = productInfo['id'];
-   // int imageId = int.tryParse(productInfo['id_default_image'] ?? '') ?? 0;
-    int imageId =productInfo['id_default_image'] ?? '';
-
-    Uint8List? productImage = await getProductImage(productId, imageId);
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProductDetailsPage(
-          productName: productInfo['name'][0]['value'],
-          price: reducedPrice,
-          productImage: productImage,
-          description: productInfo['description'][0]['value'],
-        ),
-      ),
-    );
+  String getReductionPercentage(Map<String, dynamic> product) {
+    // Assuming that the 'specific_price' value is a percentage reduction
+    final reduction = double.tryParse(product['reduction']);
+    if (reduction != null) {
+      return '-${(reduction * 100).toStringAsFixed(0)}%';
+    } else {
+      return ''; // Handle the case where 'specific_price' is not a valid percentage
+    }
   }
 
   @override
@@ -280,10 +345,8 @@ class _SubcategoryListState extends State<SubcategoryList> {
               itemCount: productList.length,
               itemBuilder: (context, index) {
                 int productId = productList[index]['id'];
-                /*int imageId = int.tryParse(
+                int imageId = int.tryParse(
                         productList[index]['id_default_image'] ?? '') ??
-                    0;*/
-                int imageId =productList[index]['id_default_image'] ?? '' ??
                     0;
 
                 return Card(
@@ -297,8 +360,28 @@ class _SubcategoryListState extends State<SubcategoryList> {
                   ),
                   child: GestureDetector(
                     onTap: () {
-                      // Navigate to product details page
-                      navigateToProductDetails(context, productList[index]);
+                      final Uint8List? productImage = productImages[imageId];
+                      final double? reducedPrice = double.tryParse(
+                          productList[index]['specific_price'] ?? '');
+
+                      if (productImage != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ProductDetailsPage(
+                              productName: productList[index]['name'][0]
+                                  ['value'],
+                              price: double.tryParse(
+                                      productList[index]['price']) ??
+                                  0.0,
+                              reducedPrice: reducedPrice ??
+                                  0.0, // Pass the reducedPrice parameter
+                              productImage: productImage,
+                              description: productList[index]['description'][0]
+                                  ['value'],
+                            ),
+                          ),
+                        );
+                      }
                     },
                     child: Stack(
                       alignment: Alignment.center,
@@ -316,13 +399,12 @@ class _SubcategoryListState extends State<SubcategoryList> {
                                       child: CircularProgressIndicator(),
                                     );
                                   } else if (snapshot.hasError) {
-                                    return Text(
-                                        'Error loading image'); // Show an error message if image fetch fails
+                                    return Text('Error loading image');
                                   } else if (snapshot.hasData &&
                                       snapshot.data != null) {
                                     return Image.memory(snapshot.data!);
                                   } else {
-                                    return Container(); // Display an empty container if no image
+                                    return Container();
                                   }
                                 },
                               ),
@@ -340,6 +422,24 @@ class _SubcategoryListState extends State<SubcategoryList> {
                           ],
                         ),
                         Positioned(
+                          top: 0, // Position the chip at the top of the card
+                          left: 0,
+                          right: 0,
+                          child: productHasSpecificPrice(productList[index])
+                              ? Chip(
+                                  backgroundColor: Colors.red,
+                                  label: Text(
+                                    getReductionPercentage(productList[index]),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                              : SizedBox
+                                  .shrink(), // If no specific price, use SizedBox
+                        ),
+                        Positioned(
                           bottom: 0,
                           left: 0,
                           right: 0,
@@ -353,16 +453,41 @@ class _SubcategoryListState extends State<SubcategoryList> {
                               ),
                             ),
                             child: Center(
-                              child: Text(
-                                ' ${productList[index]['price']}',
-                                style: TextStyle(
-                                  color: Color.fromRGBO(255, 255, 255, 1),
-                                  fontWeight: FontWeight.bold,
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: ' \$${productList[index]['price']}',
+                                      style: TextStyle(
+                                        color: Color.fromRGBO(255, 255, 255, 1),
+                                        fontWeight: FontWeight.bold,
+                                        decoration: productList[index]
+                                                    ['specific_price'] !=
+                                                null
+                                            ? TextDecoration.lineThrough
+                                            : null, // Crossed out style if specific price exists
+                                        // Crossed out style
+                                      ),
+                                    ),
+                                    if (productList[index]['specific_price'] !=
+                                        null) // Check if there's a specific price
+                                      TextSpan(
+                                        text:
+                                            ' \$${productList[index]['specific_price']}',
+                                        style: TextStyle(
+                                          color: Color.fromRGBO(220, 46, 46,
+                                              1), // Red color for reduced price
+                                          fontWeight: FontWeight.bold,
+                                          fontSize:
+                                              16, // Adjust font size as needed
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
