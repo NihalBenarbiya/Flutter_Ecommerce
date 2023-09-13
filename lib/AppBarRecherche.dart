@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 
 import 'main.dart';
 
-class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
+class AppBarRecherche extends StatelessWidget implements PreferredSizeWidget {
   final bool isLoggedIn; // Add this property
 
-  CommonAppBar({required this.isLoggedIn});
+  AppBarRecherche({required this.isLoggedIn});
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -19,18 +19,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         height: 25,
       ),
       actions: <Widget>[
-        IconButton(
-          icon: const Icon(
-            Icons.search,
-            color: Color.fromRGBO(255, 181, 0, 1.0),
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ChercherPage()),
-            );
-          },
-        ),
+
       ],
       iconTheme: IconThemeData(color: Color.fromRGBO(255, 181, 0, 1.0)),
     );
@@ -40,11 +29,11 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
 
-class CommonFooter extends StatelessWidget {
+class Footer extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  CommonFooter({
+  Footer({
     required this.currentIndex,
     required this.onTap,
   });
@@ -102,7 +91,7 @@ class CommonFooter extends StatelessWidget {
             );
             break;
           case 3:
-            // Handle navigation to Panier
+          // Handle navigation to Panier
             break;
           default:
           // Handle other cases

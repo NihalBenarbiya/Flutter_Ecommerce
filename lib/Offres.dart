@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:ecommerce_app/Recherche.dart';
 import 'package:ecommerce_app/common_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -16,7 +17,8 @@ class OffresPage extends StatefulWidget {
 
 class _OffresPageState extends State<OffresPage> {
   final List<Map<String, dynamic>> productList = [];
-  final bool isLoggedIn=false;
+  final bool isLoggedIn = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,13 +39,14 @@ class _OffresPageState extends State<OffresPage> {
 
     if (specificPriceIdsResponse.statusCode == 200) {
       List<dynamic> specificPriceIds =
-          jsonDecode(specificPriceIdsResponse.body)['specific_prices'];
+      jsonDecode(specificPriceIdsResponse.body)['specific_prices'];
       for (var specificPriceId in specificPriceIds) {
         await getProductInfo(specificPriceId['id']);
       }
     } else {
       print(
-          'Failed to fetch specific price IDs. Status code: ${specificPriceIdsResponse.statusCode}');
+          'Failed to fetch specific price IDs. Status code: ${specificPriceIdsResponse
+              .statusCode}');
     }
   }
 
@@ -61,7 +64,7 @@ class _OffresPageState extends State<OffresPage> {
 
     if (specificPriceResponse.statusCode == 200) {
       Map<String, dynamic> specificPrice =
-          jsonDecode(specificPriceResponse.body)['specific_price'];
+      jsonDecode(specificPriceResponse.body)['specific_price'];
       //int productId = int.tryParse(specificPrice['id_product'] ?? '') ?? 0;
       int productId = specificPrice['id_product'] ?? '' ?? 0;
       double reduction = double.parse(specificPrice['reduction']);
@@ -74,7 +77,7 @@ class _OffresPageState extends State<OffresPage> {
 
       if (productInfoResponse.statusCode == 200) {
         Map<String, dynamic> productInfo =
-            jsonDecode(productInfoResponse.body)['product'];
+        jsonDecode(productInfoResponse.body)['product'];
 
         setState(() {
           double regularPrice = double.parse(productInfo['price']);
@@ -88,11 +91,13 @@ class _OffresPageState extends State<OffresPage> {
         });
       } else {
         print(
-            'Failed to fetch product info for ID $productId. Status code: ${productInfoResponse.statusCode}');
+            'Failed to fetch product info for ID $productId. Status code: ${productInfoResponse
+                .statusCode}');
       }
     } else {
       print(
-          'Failed to fetch specific price info for ID $specificPriceId. Status code: ${specificPriceResponse.statusCode}');
+          'Failed to fetch specific price info for ID $specificPriceId. Status code: ${specificPriceResponse
+              .statusCode}');
     }
   }
 
@@ -122,7 +127,8 @@ class _OffresPageState extends State<OffresPage> {
       return imageData;
     } else {
       print(
-          'Failed to fetch image for product ID $productId. Status code: ${imageResponse.statusCode}');
+          'Failed to fetch image for product ID $productId. Status code: ${imageResponse
+              .statusCode}');
       return null; // Return null if image fetch fails
     }
   }
@@ -130,8 +136,8 @@ class _OffresPageState extends State<OffresPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(isLoggedIn: isLoggedIn),// Use the provided CommonAppBar widget
-      drawer: DrawerContent(context), // Use the provided DrawerContent widget
+      appBar: CommonAppBar(isLoggedIn: isLoggedIn),
+      drawer: DrawerContent(context),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -144,9 +150,9 @@ class _OffresPageState extends State<OffresPage> {
             itemBuilder: (context, index) {
               double price = productList[index]['regular_price'];
               double reducedPrice =
-                  productList[index].containsKey('reduced_price')
-                      ? productList[index]['reduced_price']
-                      : price;
+              productList[index].containsKey('reduced_price')
+                  ? productList[index]['reduced_price']
+                  : price;
               int productId = productList[index]['id'];
               int imageId = productList[index]['id_default_image'] ?? '';
 
@@ -208,7 +214,8 @@ class _OffresPageState extends State<OffresPage> {
                         child: Chip(
                           backgroundColor: Colors.red,
                           label: Text(
-                            '-${productList[index]['reduction_percentage'].toInt()}%',
+                            '-${productList[index]['reduction_percentage']
+                                .toInt()}%',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -274,6 +281,21 @@ class _OffresPageState extends State<OffresPage> {
       ),
     );
   }
-
-  // Implement the getProductImage function and other necessary functions here
 }
+  class Product {
+  final String id;
+  final String? name;
+  final String? price;
+  final String? imageId;  // Nouveau champ pour l'ID de l'image
+
+  Product({
+  required this.id,
+  this.name,
+  this.price,
+  this.imageId,  // Initialiser dans le constructeur
+  });
+  }
+
+  void main() {
+  runApp(MaterialApp(home: ChercherPage()));
+  }
