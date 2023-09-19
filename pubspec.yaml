@@ -35,7 +35,7 @@ dependencies:
   shared_preferences: ^2.0.12
   collection: ^1.15.0
   dots_indicator: ^2.1.1
-  xml: ^5.0.1
+  xml: ^5.3.0
 
  
 

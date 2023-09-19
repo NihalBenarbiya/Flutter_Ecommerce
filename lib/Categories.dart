@@ -1,10 +1,10 @@
+import 'package:ecommerce_app/ProductsByCategory.dart';
+import 'package:ecommerce_app/drawer_content.dart';
 import 'package:flutter/material.dart';
-import 'CategoryProductsPage.dart';
-import 'ProductsByCategory.dart';
-import 'common_widgets.dart';
-import 'drawer_content.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import 'common_widgets.dart';
 
 class CategoriesPage extends StatefulWidget {
   @override
@@ -12,71 +12,72 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  List<Map<String, dynamic>> categoryList = [];
-  final bool isLoggedIn=false;
+  final bool isLoggedIn = false;
+  final String basicAuth = 'Basic ' + base64.encode(utf8.encode('HXK91J3162VDCQR8DAZD7Y77PT1Z76WD:'));
 
-  @override
-  void initState() {
-    super.initState();
-    getCategoryData();
-  }
+  Future<List<Map<String, dynamic>>> fetchCategories() async {
+    List<Map<String, dynamic>> categoryList = [];
 
-  Future<void> getCategoryData() async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
-    String password = '';
-    String basicAuth =
-        'Basic ' + base64.encode(utf8.encode('$username:$password'));
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost/presta/api/categories?output_format=JSON'),
+        headers: <String, String>{'authorization': basicAuth},
+      );
 
-    http.Response categoryListResponse = await http.get(
-      Uri.parse(
-          'http://localhost/presta/api/categories?output_format=JSON'),
-      headers: <String, String>{'authorization': basicAuth},
-    );
+      if (response.statusCode == 200) {
+        final categories = jsonDecode(response.body)['categories'];
+        for (var category in categories) {
+          final int id = (category['id'] is String) ? int.parse(category['id']) : category['id'];
+          final categoryInfo = await fetchCategoryInfo(id);
 
-    if (categoryListResponse.statusCode == 200) {
-      List<dynamic> categoryIds =
-      jsonDecode(categoryListResponse.body)['categories'];
-      for (var categoryId in categoryIds) {
-        await getCategoryInfo(categoryId['id']);
+          if (categoryInfo['name'][0]['value'].toLowerCase() != 'racine' &&
+              categoryInfo['name'][0]['value'].toLowerCase() != 'accueil') {
+            categoryList.add(categoryInfo);
+          }
+        }
       }
-    } else {
-      print(
-          'Failed to fetch category list. Status code: ${categoryListResponse.statusCode}');
+    } catch (e) {
+      print('Une erreur s\'est produite : $e');
     }
+
+    return categoryList;
   }
 
-  Future<void> getCategoryInfo(int categoryId) async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
-    String password = '';
-    String basicAuth =
-        'Basic ' + base64.encode(utf8.encode('$username:$password'));
-    http.Response categoryInfoResponse = await http.get(
-      Uri.parse(
-          'http://localhost/presta/api/categories/$categoryId?output_format=JSON'),
-      headers: <String, String>{'authorization': basicAuth},
-    );
+  Future<Map<String, dynamic>> fetchCategoryInfo(int id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost/presta/api/categories/$id?output_format=JSON'),
+        headers: <String, String>{'authorization': basicAuth},
+      );
 
-    if (categoryInfoResponse.statusCode == 200) {
-      Map<String, dynamic> categoryInfo =
-      jsonDecode(categoryInfoResponse.body)['category'];
-
-      setState(() {
-        categoryList.add(categoryInfo);
-      });
-    } else {
-      print(
-          'Failed to fetch category info for ID $categoryId. Status code: ${categoryInfoResponse.statusCode}');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['category'];
+      }
+    } catch (e) {
+      print('Une erreur s\'est produite : $e');
     }
+
+    return {};
+  }
+
+  Future<String> fetchProductImageForCategory(int productId, int imageId) async {
+    try {
+      final imageUrl = 'http://localhost/presta/api/images/products/$productId/$imageId?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+      return imageUrl;
+    } catch (e) {
+      print('Une erreur s\'est produite : $e');
+    }
+
+    return '';
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       appBar: CommonAppBar(isLoggedIn: isLoggedIn),
       drawer: DrawerContent(context),
-      body: SingleChildScrollView(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             SizedBox(height: 24),
@@ -94,7 +95,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       size: 28,
                     ),
                   ),
-                  SizedBox(height: 24),
+                  SizedBox(width: 10), // Ajustez l'espacement horizontal si nécessaire
                   Expanded(
                     child: Center(
                       child: Text(
@@ -109,63 +110,107 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 ],
               ),
             ),
-            SizedBox(height: 24),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 20.0,
-                crossAxisSpacing: 20.0,
-              ),
-              itemCount: categoryList.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductsByCategoryPage(
-                          categoryId: categoryList[index]['id'],
-                        ),
-                      ),
+            Expanded(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: fetchCategories(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
                     );
-                  },
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(color: Colors.red, width: 2.0),
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Une erreur s\'est produite'),
+                    );
+                  }
+
+                  final categories = snapshot.data ?? [];
+
+                  return GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 3.0,
+                      crossAxisSpacing: 3.0,
+                      childAspectRatio: 0.75, // Réglez cette valeur selon vos besoins
                     ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(
-                          '${categoryList[index]['name'][0]['value']}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Color.fromRGBO(59, 59, 59, 1),
+
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final productId = categories[index]['id'];
+                      final imageId = categories[index]['id_default_image'] ?? productId; // Remplacez 0 par une valeur par défaut si nécessaire
+                      final imageUrl = fetchProductImageForCategory(productId, imageId);
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductsByCategoryPage(
+                                categoryId: categories[index]['id'],
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          margin: EdgeInsets.all(10.0),
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                             // borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(color: Colors.black, width: 2.0),
+                            ),
+                            child: FutureBuilder<String>(
+                              future: imageUrl,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return CircularProgressIndicator();
+                                }
+
+                                if (snapshot.hasError || !snapshot.hasData) {
+                                  return Container(); // Placeholder for no image
+                                }
+
+                                final imageUrl = snapshot.data;
+
+                                return Column(
+                                  children: [
+                                    if (imageUrl != null && imageUrl.isNotEmpty)
+                                      Image.network(imageUrl)
+                                    else
+                                      Container(), // Placeholder for no image
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Center(
+                                        child: Text(
+                                          categories[index]['name'][0]['value'],
+                                          style: TextStyle(
+                                            fontSize: 16, // Vous pouvez ajuster la taille de la police selon vos préférences
+                                            fontWeight: FontWeight.bold, // Texte en gras
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-
-
           ],
         ),
       ),
       bottomNavigationBar: CommonFooter(
         currentIndex: 0,
         onTap: (index) {
-          // Handle bottom navigation item tap
+          // Handle bottom navigation tap if needed
         },
       ),
     );
