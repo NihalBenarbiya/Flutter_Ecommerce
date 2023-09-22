@@ -1,3 +1,5 @@
+// *******************drawer**********************
+import 'package:ecommerce_app/ProfilePage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Aide.dart';
@@ -21,21 +23,26 @@ class DrawerContent extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isLoggedIn') ?? false; // Utilisez false par défaut si la valeur n'est pas définie
   }
+  void _openProfilePage() {
+    Navigator.pop(parentContext);
+    Navigator.pushReplacement(
+        parentContext, MaterialPageRoute(builder: (context) => ProfilePage()));
+  }
 
   void _openAidePage() {
     Navigator.pop(parentContext);
-    Navigator.push(
+    Navigator.pushReplacement(
         parentContext, MaterialPageRoute(builder: (context) => AideWidget()));
   }
 
   void _openLoginPage() {
     Navigator.pop(parentContext);
-    Navigator.push(
+    Navigator.pushReplacement(
         parentContext, MaterialPageRoute(builder: (context) => LoginPage()));
   }
   void _openConditionPage() {
     Navigator.pop(parentContext);
-    Navigator.push(
+    Navigator.pushReplacement(
         parentContext, MaterialPageRoute(builder: (context) => ConditionVente()));
   }
 
@@ -63,7 +70,9 @@ class DrawerContent extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
           ),
+
           FutureBuilder<bool>(
             future: _getIsLoggedIn(),
             builder: (context, snapshot) {
@@ -77,29 +86,31 @@ class DrawerContent extends StatelessWidget {
                           ConnectionState.done) {
                         final userEmail = emailSnapshot.data;
                         return UserAccountsDrawerHeader(
-                          accountName: null, // Mettez ici le nom de l'utilisateur s'il est disponible
-                          accountEmail: FutureBuilder<String?>(
-                            future: _getUserEmail(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.done) {
-                                final userEmail = snapshot.data;
-                                return Text('E-mail: $userEmail', style: TextStyle(color: Colors.white));
-                              } else {
-                                return CircularProgressIndicator();
-                              }
-                            },
-                          ),
-                          currentAccountPicture: CircleAvatar(
-                            child: Icon(
-                              Icons.person, // Icône de profil (par exemple, un visage d'utilisateur)
-                              color: Colors.white, // Couleur de l'icône de profil
-                            ),
-                            backgroundColor: Colors.grey, // Couleur de l'arrière-plan du cercle de profil
+                            accountName: null, // Mettez ici le nom de l'utilisateur s'il est disponible
+                            accountEmail: FutureBuilder<String?>(
+                              future: _getUserEmail(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done) {
+                                  final userEmail = snapshot.data;
+                                  return Text('E-mail: $userEmail', style: TextStyle(color: Colors.white)
 
-                          ),
-                      decoration: BoxDecoration(
-                      color: const Color.fromRGBO(59, 59, 59, 1), // Couleur de fond de l'en-tête du tiroir
-                        )
+                                  );
+                                } else {
+                                  return CircularProgressIndicator();
+                                }
+                              },
+                            ),
+                            currentAccountPicture: CircleAvatar(
+                              child: Icon(
+                                Icons.person, // Icône de profil (par exemple, un visage d'utilisateur)
+                                color: Colors.white, // Couleur de l'icône de profil
+                              ),
+                              backgroundColor: Colors.grey, // Couleur de l'arrière-plan du cercle de profil
+
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color.fromRGBO(59, 59, 59, 1), // Couleur de fond de l'en-tête du tiroir
+                            )
                         );
                       } else {
                         return CircularProgressIndicator();
@@ -117,6 +128,27 @@ class DrawerContent extends StatelessWidget {
                 }
               } else {
                 return CircularProgressIndicator();
+              }
+            },
+          ),
+          FutureBuilder<bool>(
+            future: _getIsLoggedIn(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                final isLoggedIn = snapshot.data;
+                if (isLoggedIn!) {
+                  return ListTile(
+                    leading: Icon(Icons.person, color: Color.fromRGBO(255, 181, 0, 1)),
+                    title: Text('Mon Profil'),
+                    onTap: _openProfilePage,
+                  );
+                } else {
+                  // Si l'utilisateur n'est pas connecté, retournez simplement un conteneur vide.
+                  return Container();
+                }
+              } else {
+                // Pendant le chargement, retournez également un conteneur vide.
+                return Container();
               }
             },
           ),
