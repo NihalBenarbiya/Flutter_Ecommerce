@@ -6,9 +6,11 @@ import 'package:ecommerce_app/ProductDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
+import 'CartProvider.dart';
 import 'ProductsByCategory.dart';
 import 'common_widgets.dart';
 import 'drawer_content.dart';
@@ -19,6 +21,8 @@ void main() {
     debugShowCheckedModeBanner: false,
     home: HomePage(),
   ));
+  // Initialize the CartController
+  Get.put(CartController());
 }
 
 class HomePage extends StatefulWidget {
@@ -237,6 +241,7 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => ProductDetailsPage(
+          product_id: productId,
           productName: productInfo['name'][0]['value'],
           price: price,
           reducedPrice: reducedPrice,
@@ -249,6 +254,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(CartController());
     return Scaffold(
       appBar: CommonAppBar(isLoggedIn: isLoggedIn),
       drawer: DrawerContent(context),

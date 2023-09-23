@@ -2,6 +2,9 @@ import 'package:ecommerce_app/Categories.dart';
 import 'package:ecommerce_app/Offres.dart';
 import 'package:ecommerce_app/Recherche.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'CartProvider.dart';
 
 import 'main.dart';
 
@@ -102,14 +105,18 @@ class CommonFooter extends StatelessWidget {
             );
             break;
           case 3:
-            // Handle navigation to Panier
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CartPage()),
+            );
             break;
           default:
           // Handle other cases
         }
       },
       selectedItemColor: Color.fromRGBO(255, 181, 0, 1),
-      unselectedItemColor: Colors.white, // Add this line to change the unselected item color
+      unselectedItemColor:
+          Colors.white, // Add this line to change the unselected item color
     );
   }
 }

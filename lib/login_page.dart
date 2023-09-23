@@ -10,13 +10,15 @@ import 'common_widgets.dart';
 import 'drawer_content.dart';
 import 'main.dart';
 import 'package:xml/xml.dart' as xml;
+
 void _openAidePage() {
   Navigator.pop(context as BuildContext); // Close the drawer
-  Navigator.push(
-      context as BuildContext, MaterialPageRoute(builder: (context) => AideWidget()));
+  Navigator.push(context as BuildContext,
+      MaterialPageRoute(builder: (context) => AideWidget()));
 }
+
 class LoginPage extends StatelessWidget {
-  final bool isLoggedIn=false;
+  final bool isLoggedIn = false;
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +80,12 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
-
-
 }
-Future<bool> loginToPrestaShop(String email, String password, int customerId) async {
-  final url = 'http://localhost/presta/api/customers/$customerId?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+
+Future<bool> loginToPrestaShop(
+    String email, String password, int customerId) async {
+  final url =
+      'http://localhost/prestashop/api/customers/$customerId?ws_key=1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
@@ -113,11 +116,11 @@ Future<bool> loginToPrestaShop(String email, String password, int customerId) as
     return false; // Login failure
   }
 }
+
 Future<String?> getUserEmail() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getString('userEmail');
 }
-
 
 class LoginForm extends StatefulWidget {
   @override
@@ -131,7 +134,8 @@ class _LoginFormState extends State<LoginForm> {
   bool _isPasswordVisible = false;
   bool _loginError = false;
   Future<List<int>> getCustomerIds() async {
-    final url = 'http://localhost/presta/api/customers?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    final url =
+        'http://localhost/prestashop/api/customers?ws_key=1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -169,7 +173,9 @@ class _LoginFormState extends State<LoginForm> {
         if (loggedIn) {
           final prefs = await SharedPreferences.getInstance();
           prefs.setBool('isLoggedIn', true);
-          prefs.setString('userEmail', email); // Stockez l'e-mail de l'utilisateur
+          prefs.setString('userEmail', email);
+          prefs.setInt(
+              'customerId', customerId); // Stockez l'e-mail de l'utilisateur
         }
       }
       if (loggedIn) {
@@ -185,7 +191,9 @@ class _LoginFormState extends State<LoginForm> {
                     Navigator.of(context).pop();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => HomePage()), // Redirige vers la HomePage
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              HomePage()), // Redirige vers la HomePage
                     );
                   },
                   child: Text("Fermer"),
@@ -221,14 +229,13 @@ class _LoginFormState extends State<LoginForm> {
       }
     }
   }
+
   void _navigateToRegistrationPage(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => RegistrationPage()),
     );
   }
-
-
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -297,7 +304,6 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
           ),
-
           SizedBox(height: 16),
           InkWell(
             onTap: () => _navigateToRegistrationPage(context),
@@ -309,7 +315,6 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
           ),
-
           Column(
             children: [
               if (_loginError)
@@ -323,8 +328,6 @@ class _LoginFormState extends State<LoginForm> {
                 SizedBox.shrink(), // Empty widget when no error
             ],
           ),
-
-
         ],
       ),
     );

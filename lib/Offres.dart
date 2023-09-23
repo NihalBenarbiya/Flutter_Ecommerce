@@ -10,7 +10,6 @@ import 'ProductDetails.dart';
 import 'drawer_content.dart';
 
 class OffresPage extends StatefulWidget {
-
   @override
   State<OffresPage> createState() => _OffresPageState();
 }
@@ -26,45 +25,44 @@ class _OffresPageState extends State<OffresPage> {
   }
 
   Future<void> getData() async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response specificPriceIdsResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/specific_prices?output_format=JSON'),
+          'http://localhost/prestashop/api/specific_prices?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
     if (specificPriceIdsResponse.statusCode == 200) {
       List<dynamic> specificPriceIds =
-      jsonDecode(specificPriceIdsResponse.body)['specific_prices'];
+          jsonDecode(specificPriceIdsResponse.body)['specific_prices'];
       for (var specificPriceId in specificPriceIds) {
         await getProductInfo(specificPriceId['id']);
       }
     } else {
       print(
-          'Failed to fetch specific price IDs. Status code: ${specificPriceIdsResponse
-              .statusCode}');
+          'Failed to fetch specific price IDs. Status code: ${specificPriceIdsResponse.statusCode}');
     }
   }
 
   Future<void> getProductInfo(int specificPriceId) async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response specificPriceResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/specific_prices/$specificPriceId?output_format=JSON'),
+          'http://localhost/prestashop/api/specific_prices/$specificPriceId?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
     if (specificPriceResponse.statusCode == 200) {
       Map<String, dynamic> specificPrice =
-      jsonDecode(specificPriceResponse.body)['specific_price'];
+          jsonDecode(specificPriceResponse.body)['specific_price'];
       //int productId = int.tryParse(specificPrice['id_product'] ?? '') ?? 0;
       int productId = specificPrice['id_product'] ?? '' ?? 0;
       double reduction = double.parse(specificPrice['reduction']);
@@ -77,7 +75,7 @@ class _OffresPageState extends State<OffresPage> {
 
       if (productInfoResponse.statusCode == 200) {
         Map<String, dynamic> productInfo =
-        jsonDecode(productInfoResponse.body)['product'];
+            jsonDecode(productInfoResponse.body)['product'];
 
         setState(() {
           double regularPrice = double.parse(productInfo['price']);
@@ -91,13 +89,11 @@ class _OffresPageState extends State<OffresPage> {
         });
       } else {
         print(
-            'Failed to fetch product info for ID $productId. Status code: ${productInfoResponse
-                .statusCode}');
+            'Failed to fetch product info for ID $productId. Status code: ${productInfoResponse.statusCode}');
       }
     } else {
       print(
-          'Failed to fetch specific price info for ID $specificPriceId. Status code: ${specificPriceResponse
-              .statusCode}');
+          'Failed to fetch specific price info for ID $specificPriceId. Status code: ${specificPriceResponse.statusCode}');
     }
   }
 
@@ -109,13 +105,13 @@ class _OffresPageState extends State<OffresPage> {
       return imageCache[imageId];
     }
 
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
     http.Response imageResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/images/products/$productId/$imageId'),
+          'http://localhost/prestashop/api/images/products/$productId/$imageId'),
       headers: <String, String>{
         'authorization': basicAuth,
       },
@@ -127,8 +123,7 @@ class _OffresPageState extends State<OffresPage> {
       return imageData;
     } else {
       print(
-          'Failed to fetch image for product ID $productId. Status code: ${imageResponse
-              .statusCode}');
+          'Failed to fetch image for product ID $productId. Status code: ${imageResponse.statusCode}');
       return null; // Return null if image fetch fails
     }
   }
@@ -150,9 +145,9 @@ class _OffresPageState extends State<OffresPage> {
             itemBuilder: (context, index) {
               double price = productList[index]['regular_price'];
               double reducedPrice =
-              productList[index].containsKey('reduced_price')
-                  ? productList[index]['reduced_price']
-                  : price;
+                  productList[index].containsKey('reduced_price')
+                      ? productList[index]['reduced_price']
+                      : price;
               int productId = productList[index]['id'];
               int imageId = productList[index]['id_default_image'] ?? '';
 
@@ -214,8 +209,7 @@ class _OffresPageState extends State<OffresPage> {
                         child: Chip(
                           backgroundColor: Colors.red,
                           label: Text(
-                            '-${productList[index]['reduction_percentage']
-                                .toInt()}%',
+                            '-${productList[index]['reduction_percentage'].toInt()}%',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -282,20 +276,21 @@ class _OffresPageState extends State<OffresPage> {
     );
   }
 }
-  class Product {
+
+class Product {
   final String id;
   final String? name;
   final String? price;
-  final String? imageId;  // Nouveau champ pour l'ID de l'image
+  final String? imageId; // Nouveau champ pour l'ID de l'image
 
   Product({
-  required this.id,
-  this.name,
-  this.price,
-  this.imageId,  // Initialiser dans le constructeur
+    required this.id,
+    this.name,
+    this.price,
+    this.imageId, // Initialiser dans le constructeur
   });
-  }
+}
 
-  void main() {
+void main() {
   runApp(MaterialApp(home: ChercherPage()));
-  }
+}

@@ -12,7 +12,7 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  final bool isLoggedIn=false;
+  final bool isLoggedIn = false;
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
   late String email;
@@ -47,7 +47,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       final xmlData = xmlBuilder.build().toXmlString();
 
       final response = await http.post(
-        Uri.parse("http://localhost/presta/api/customers?ws_key=HXK91J3162VDCQR8DAZD7Y77PT1Z76WD"),
+        Uri.parse(
+            "http://localhost/prestashop/api/customers?ws_key=1V7UKH354GJ24FZZVJQ6LNV3FY7VH927"),
         headers: {
           'Content-Type': 'application/xml',
         },
@@ -80,6 +81,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -193,7 +195,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       prefixIcon: Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                          _isPasswordVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                           color: Colors.grey,
                         ),
                         onPressed: _togglePasswordVisibility,

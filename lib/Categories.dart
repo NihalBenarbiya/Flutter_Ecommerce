@@ -13,7 +13,7 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   List<Map<String, dynamic>> categoryList = [];
-  final bool isLoggedIn=false;
+  final bool isLoggedIn = false;
 
   @override
   void initState() {
@@ -22,20 +22,20 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   Future<void> getCategoryData() async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
 
     http.Response categoryListResponse = await http.get(
       Uri.parse(
-          'http://localhost/presta/api/categories?output_format=JSON'),
+          'http://localhost/prestashop/api/categories?output_format=JSON'),
       headers: <String, String>{'authorization': basicAuth},
     );
 
     if (categoryListResponse.statusCode == 200) {
       List<dynamic> categoryIds =
-      jsonDecode(categoryListResponse.body)['categories'];
+          jsonDecode(categoryListResponse.body)['categories'];
       for (var categoryId in categoryIds) {
         await getCategoryInfo(categoryId['id']);
       }
@@ -46,7 +46,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   Future<void> getCategoryInfo(int categoryId) async {
-    String username = 'HXK91J3162VDCQR8DAZD7Y77PT1Z76WD';
+    String username = '1V7UKH354GJ24FZZVJQ6LNV3FY7VH927';
     String password = '';
     String basicAuth =
         'Basic ' + base64.encode(utf8.encode('$username:$password'));
@@ -58,7 +58,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
     if (categoryInfoResponse.statusCode == 200) {
       Map<String, dynamic> categoryInfo =
-      jsonDecode(categoryInfoResponse.body)['category'];
+          jsonDecode(categoryInfoResponse.body)['category'];
 
       setState(() {
         categoryList.add(categoryInfo);
@@ -157,8 +157,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 );
               },
             ),
-
-
           ],
         ),
       ),

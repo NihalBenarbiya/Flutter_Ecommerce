@@ -289,6 +289,15 @@ class _SubcategoryListState extends State<SubcategoryList> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Align(
+          alignment: Alignment.topLeft, // Align to the top-left corner
+          child: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
         SizedBox(
           height: 80,
           width: double.infinity,
@@ -368,6 +377,7 @@ class _SubcategoryListState extends State<SubcategoryList> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ProductDetailsPage(
+                              product_id: productList[index]['id'],
                               productName: productList[index]['name'][0]
                                   ['value'],
                               price: double.tryParse(
