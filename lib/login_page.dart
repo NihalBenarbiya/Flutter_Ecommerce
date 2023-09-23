@@ -13,7 +13,7 @@ import 'package:xml/xml.dart' as xml;
 
 void _openAidePage() {
   Navigator.pop(context as BuildContext); // Close the drawer
-  Navigator.push(context as BuildContext,
+  Navigator.pushReplacement(context as BuildContext,
       MaterialPageRoute(builder: (context) => AideWidget()));
 }
 
@@ -122,6 +122,11 @@ Future<String?> getUserEmail() async {
   return prefs.getString('userEmail');
 }
 
+Future<void> storeCustomerId(int customerId) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('customerId', customerId);
+}
+
 class LoginForm extends StatefulWidget {
   @override
   _LoginFormState createState() => _LoginFormState();
@@ -173,9 +178,9 @@ class _LoginFormState extends State<LoginForm> {
         if (loggedIn) {
           final prefs = await SharedPreferences.getInstance();
           prefs.setBool('isLoggedIn', true);
-          prefs.setString('userEmail', email);
-          prefs.setInt(
-              'customerId', customerId); // Stockez l'e-mail de l'utilisateur
+          prefs.setString(
+              'userEmail', email); // Stockez l'e-mail de l'utilisateur
+          prefs.setInt('customerId', customerId); // Stockez l'ID du client
         }
       }
       if (loggedIn) {

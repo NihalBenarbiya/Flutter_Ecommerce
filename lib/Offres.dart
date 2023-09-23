@@ -139,6 +139,8 @@ class _OffresPageState extends State<OffresPage> {
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
+              mainAxisSpacing: 3.0,
+              crossAxisSpacing: 3.0,
               childAspectRatio: 0.75, // Adjust this for card aspect ratio
             ),
             itemCount: productList.length,
@@ -154,7 +156,7 @@ class _OffresPageState extends State<OffresPage> {
               return Card(
                 elevation: 10,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  //borderRadius: BorderRadius.circular(10.0),
                   side: BorderSide(
                     color: Color.fromRGBO(59, 59, 59, 1),
                     width: 2.0,
@@ -171,7 +173,7 @@ class _OffresPageState extends State<OffresPage> {
                       Column(
                         children: [
                           Container(
-                            height: 180,
+                            height: 160,
                             child: FutureBuilder<Uint8List?>(
                               future: getProductImage(productId, imageId),
                               builder: (context, snapshot) {
